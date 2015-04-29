@@ -1,7 +1,7 @@
 import argparse
 import os
 
-from sowiz.annotation.generator import PackageGenerator
+from sowiz.annotation.package import PackageGenerator
 
 if __name__ == '__main__':
 
