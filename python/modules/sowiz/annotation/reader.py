@@ -4,6 +4,7 @@ import os
 import time
 
 from sowiz.util import StoppableThread
+from sowiz.annotation.config import annotation_type_for_annotation_file_name
 
 class Annotation(object):
 
@@ -13,7 +14,7 @@ class Annotation(object):
 		self.__values = values
 
 	def __str__(self):
-		s = self.__class__.__name__ + ' ' + self.identifier + 'time_stamp: ' + str(self.time_stamp)
+		s = self.__class__.__name__ + ' ' + self.identifier + ' time_stamp: ' + str(self.time_stamp)
 		s += ' values : ' + str(self.__values)
 		return s
 
@@ -41,9 +42,12 @@ class Annotation(object):
 
 class AnnotationFileReader(object):
 
-	def __init__(self, file_path):
+	def __init__(self, file_path, identifier=None):
 		self.__file_path = file_path
-		self.__identifier = os.path.splitext(os.path.split(self.file_path)[1])[0]
+		if identifier is None:
+			self.__identifier = annotation_type_for_annotation_file_name(os.path.split(file_path)[1])
+		else:
+			self.__identifier = identifier
 
 	def __str__(self):
 		return self.__class__.__name__ + ' ' + self.__file_path

@@ -2,12 +2,17 @@ import logging
 import Queue
 
 from sowiz.util import StoppableThread
+from sowiz.network.osc import Message, Client
 from sowiz.annotation.reader import AnnotationReaderThread
 
 
 class AnnotationClient(object):
 
 	def send(self, annotation):
+		"""
+		:param annotation: an annotation which the client should do something with
+		:raise NotImplementedError:
+		"""
 		raise NotImplementedError()
 
 class AnnotationMultiClient(AnnotationClient):
@@ -40,6 +45,40 @@ class AnnotationPrintClient(AnnotationClient):
 
 	def send(self, annotation):
 		logging.info( 'client received : %s' % str(annotation) )
+
+class AnnotationOSCClient(AnnotationClient):
+
+	def __init__(self, hostname, port):
+		self.__osc_client = Client(hostname, port)
+		self.__routes = {}
+
+	@property
+	def osc_client(self):
+		return self.__osc_client
+
+	@property
+	def routes(self):
+		return iter(self.__routes.items())
+
+	def get_route(self, identifier):
+		"""
+		:rtype : str
+		:param identifier: an annotation identifier
+		:return: osc path associated with the annotation identifier
+		"""
+		return self.__routes.get(identifier, None)
+
+	def set_route(self, identifier, path):
+		self.__routes[identifier] = path
+
+	def send(self, annotation):
+		path = self.get_route(annotation.identifier)
+		if path is not None:
+			args = [annotation.time_stamp]
+			for value in annotation.values:
+				args.append(value)
+			self.osc_client.send_message( Message(path, args) )
+
 
 
 class AnnotationPlayerThread(StoppableThread):
