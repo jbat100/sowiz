@@ -1,21 +1,23 @@
 import logging
 import Queue
+import time
 
+from sowiz.util import variable_type_check
+from sowiz.network.osc import Client
+from sowiz.description.core import EventOSCTranslator
 from sowiz.util import StoppableThread
-from sowiz.network.osc import Message, Client
-from sowiz.description.reader import AnnotationReaderThread
 
 
-class AnnotationClient(object):
+class EventClient(object):
 
-	def send(self, annotation):
+	def send(self, event):
 		"""
 		:param annotation: an description which the client should do something with
 		:raise NotImplementedError:
 		"""
 		raise NotImplementedError()
 
-class AnnotationMultiClient(AnnotationClient):
+class EventMultiClient(EventClient):
 
 	def __init__(self):
 		self.__clients = []
@@ -24,67 +26,62 @@ class AnnotationMultiClient(AnnotationClient):
 		if client not in self.__clients:
 			self.__clients.append(client)
 		else:
-			raise ValueError('already contains client %s' % str(client))
+			raise ValueError('already contains %s' % str(client))
 
 	def remove_client(self, client):
 		if client in self.__clients:
 			self.__clients.remove(client)
 		else:
-			raise ValueError('does not contains client %s' % str(client))
+			raise ValueError('does not contains %s' % str(client))
 
 	@property
 	def clients(self):
 		return iter(self.__clients)
 
-	def send(self, annotation):
+	def send(self, event):
 		for client in self.clients:
-			client.send(annotation)
+			client.send(event)
 
 
-class AnnotationPrintClient(AnnotationClient):
+class EventPrintClient(EventClient):
 
-	def send(self, annotation):
-		logging.info( 'client received : %s' % str(annotation) )
+	def send(self, event):
+		logging.info( 'client received : %s' % str(event) )
 
-class AnnotationOSCClient(AnnotationClient):
+
+class EventOSCClient(EventClient):
 
 	def __init__(self, hostname, port):
 		self.__osc_client = Client(hostname, port)
-		self.__routes = {}
+		self.__translators = []
 
 	@property
 	def osc_client(self):
 		return self.__osc_client
 
 	@property
-	def routes(self):
-		return iter(self.__routes.items())
+	def translators(self):
+		return iter(self.__translators)
 
-	def get_route(self, identifier):
-		"""
-		:rtype : str
-		:param identifier: an description identifier
-		:return: osc path associated with the description identifier
-		"""
-		return self.__routes.get(identifier, None)
+	def register_translator(self, translator):
+		variable_type_check(translator, EventOSCTranslator)
+		if translator not in self.__translators:
+			self.__translators.append(translator)
+		else:
+			raise ValueError('already contains %s' % translator)
 
-	def set_route(self, identifier, path):
-		self.__routes[identifier] = path
-
-	def send(self, annotation):
-		path = self.get_route(annotation.identifier)
-		if path is not None:
-			args = [annotation.time_stamp]
-			for value in annotation.values:
-				args.append(value)
-			self.osc_client.send_message( Message(path, args) )
+	def send(self, event):
+		for translator in self.translators:
+			if isinstance(event, translator.EVENT_TYPE):
+				message = translator.translate(event)
+				self.osc_client.send_message( message )
 
 
 
-class AnnotationPlayerThread(StoppableThread):
+class EventPlayerThread(StoppableThread):
 
 	def __init__(self, client, queue):
-		super(AnnotationPlayerThread, self).__init__()
+		super(EventPlayerThread, self).__init__()
 		self.__queue = queue
 		self.__client = client
 
@@ -99,15 +96,49 @@ class AnnotationPlayerThread(StoppableThread):
 	def run(self):
 		logging.debug('starting player thread')
 		while True:
-			annotation = self.queue.get()
-			logging.debug('player thread got %s' % str(annotation))
-			if annotation is not None:
-				self.client.send(annotation)
+			event = self.queue.get()
+			logging.debug('player thread got %s' % str(event))
+			if event is not None:
+				self.client.send(event)
 			elif self.is_stopped():
 				break
 
 
-class AnnotationPlayer(object):
+class EventReaderThread(StoppableThread):
+
+	def __init__(self, reader, queue):
+		super(EventReaderThread, self).__init__()
+		self.__reader  = reader
+		self.__queue = queue
+		self.__start_time = None
+
+	@property
+	def reader(self):
+		return self.__reader
+
+	@property
+	def queue(self):
+		return self.__queue
+
+	@property
+	def start_time(self):
+		return self.__start_time
+
+	def run(self):
+		logging.debug('starting reader thread %s' % str(self.reader))
+		self.__start_time = time.time()
+		for event in self.reader.events:
+			wait_time = self.start_time + event.time_stamp - time.time()
+			logging.debug('next description in %f seconds' % wait_time)
+			if wait_time > 0.0:
+				self.sleep(wait_time)
+			if self.is_stopped():
+				break
+			self.queue.put(event)
+		logging.debug('ending reader thread %s' % str(self.reader))
+
+
+class EventPlayer(object):
 
 	def __init__(self, client):
 		self.__client = client
@@ -138,10 +169,10 @@ class AnnotationPlayer(object):
 	def play(self):
 		logging.info('annotations playing')
 		self._stop_internal_threads()
-		self.__player_thread = AnnotationPlayerThread(self.client, self.queue)
+		self.__player_thread = EventPlayerThread(self.client, self.queue)
 		self.__player_thread.start()
 		for reader in self.readers:
-			reader_thread = AnnotationReaderThread(reader, self.queue)
+			reader_thread = EventReaderThread(reader, self.queue)
 			self.__reader_threads.append(reader_thread)
 			reader_thread.start()
 
@@ -156,7 +187,4 @@ class AnnotationPlayer(object):
 			self.__player_thread.stop()
 			self.__player_thread.queue.put(None)
 			self.__player_thread = None
-
-
-
 

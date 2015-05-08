@@ -5,31 +5,32 @@ import logging
 from sowiz.util import perform_logging_setup
 from sowiz.description.config import AnnotationTypes
 from sowiz.description.package import Package
-from sowiz.description.reader import AnnotationFileReader
-from sowiz.description.player import AnnotationPlayer, AnnotationPrintClient, AnnotationMultiClient, AnnotationOSCClient
+from sowiz.description.annotation import AnnotationFileReader
+from sowiz.description.player import EventPlayer, EventPrintClient, EventMultiClient, EventOSCClient
 
 def osc_path_for_annotation_type(annotation_type):
-	return '/sowiz/description/' + annotation_type.lower()
+	return '/sowiz/annotation/' + annotation_type.lower()
 
 def main():
 
 	parser = argparse.ArgumentParser(description='Test player for an description package')
 	parser.add_argument('path', type=str, help='Path to the input package')
+	parser.add_argument('-t', '--type', type=str, help='Event types (default to all known types)')
 	args = parser.parse_args()
 
 	perform_logging_setup(logging.INFO)
 
 	package = Package(args.path)
 
-	osc_client = AnnotationOSCClient('localhost', 3333)
+	osc_client = EventOSCClient('localhost', 3333)
 	for annotation_type in AnnotationTypes:
 		osc_client.set_route(annotation_type, osc_path_for_annotation_type(annotation_type))
 
-	client = AnnotationMultiClient()
-	client.add_client(AnnotationPrintClient())
+	client = EventMultiClient()
+	client.add_client(EventPrintClient())
 	client.add_client(osc_client)
 
-	player = AnnotationPlayer(client)
+	player = EventPlayer(client)
 	for annotation_file_path in package.annotation_file_paths:
 		reader = AnnotationFileReader(annotation_file_path)
 		player.add_reader(reader)
