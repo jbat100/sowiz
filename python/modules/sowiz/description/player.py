@@ -3,14 +3,14 @@ import Queue
 
 from sowiz.util import StoppableThread
 from sowiz.network.osc import Message, Client
-from sowiz.annotation.reader import AnnotationReaderThread
+from sowiz.description.reader import AnnotationReaderThread
 
 
 class AnnotationClient(object):
 
 	def send(self, annotation):
 		"""
-		:param annotation: an annotation which the client should do something with
+		:param annotation: an description which the client should do something with
 		:raise NotImplementedError:
 		"""
 		raise NotImplementedError()
@@ -63,8 +63,8 @@ class AnnotationOSCClient(AnnotationClient):
 	def get_route(self, identifier):
 		"""
 		:rtype : str
-		:param identifier: an annotation identifier
-		:return: osc path associated with the annotation identifier
+		:param identifier: an description identifier
+		:return: osc path associated with the description identifier
 		"""
 		return self.__routes.get(identifier, None)
 

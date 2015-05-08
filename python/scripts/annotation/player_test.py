@@ -3,17 +3,17 @@ import time
 import logging
 
 from sowiz.util import perform_logging_setup
-from sowiz.annotation.config import AnnotationTypes
-from sowiz.annotation.package import Package
-from sowiz.annotation.reader import AnnotationFileReader
-from sowiz.annotation.player import AnnotationPlayer, AnnotationPrintClient, AnnotationMultiClient, AnnotationOSCClient
+from sowiz.description.config import AnnotationTypes
+from sowiz.description.package import Package
+from sowiz.description.reader import AnnotationFileReader
+from sowiz.description.player import AnnotationPlayer, AnnotationPrintClient, AnnotationMultiClient, AnnotationOSCClient
 
 def osc_path_for_annotation_type(annotation_type):
-	return '/sowiz/annotation/' + annotation_type.lower()
+	return '/sowiz/description/' + annotation_type.lower()
 
 def main():
 
-	parser = argparse.ArgumentParser(description='Test player for an annotation package')
+	parser = argparse.ArgumentParser(description='Test player for an description package')
 	parser.add_argument('path', type=str, help='Path to the input package')
 	args = parser.parse_args()
 

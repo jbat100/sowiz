@@ -4,7 +4,7 @@ import os
 import time
 
 from sowiz.util import StoppableThread
-from sowiz.annotation.config import annotation_type_for_annotation_file_name
+from sowiz.description.config import annotation_type_for_annotation_file_name
 
 class Annotation(object):
 
@@ -96,7 +96,7 @@ class AnnotationReaderThread(StoppableThread):
 		self.__start_time = time.time()
 		for annotation in self.reader.annotations:
 			wait_time = self.start_time + annotation.time_stamp - time.time()
-			logging.debug('next annotation in %f seconds' % wait_time)
+			logging.debug('next description in %f seconds' % wait_time)
 			if wait_time > 0.0:
 				self.sleep(wait_time)
 			if self.is_stopped():
