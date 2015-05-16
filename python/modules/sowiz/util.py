@@ -45,6 +45,10 @@ def variable_type_check(variable, expected_type, accept_none = False):
 		logging.error('expected_type is probably invalid: %r', expected_type)
 		raise
 
+#=======================================================================================================================
+# Enum
+#=======================================================================================================================
+
 class Enum(set):
 
 	""" I really want to do enums and python doesn't really have a good way of doing them up to python 3.4, this is the best way
@@ -61,6 +65,62 @@ class Enum(set):
 			return name
 		raise AttributeError('unrecognized enumeration element: %r (known: %s)'%(name, str(self)))
 
+#=======================================================================================================================
+# Event
+#=======================================================================================================================
+
+class Event(object):
+
+	""" Generic event class taken from http://stackoverflow.com/questions/1092531/event-system-in-python, anyone can subsribe
+	or unsubscribe by calling handle or unhandle and the function/method they want to be called, all arguments will be forwarded """
+
+	def __init__(self):
+		self.__handlers = set()
+		self.__safe = True
+		self.__lock = threading.RLock()
+
+	def handle(self, handler):
+		with self.__lock:
+			self.__handlers.add(handler)
+		return self
+
+	def unhandle(self, handler):
+		try:
+			with self.__lock:
+				self.__handlers.remove(handler)
+		except ValueError, e:
+			logging.debug('%r unhandle called for non-existing handler %r'%(self, handler))
+			#raise ValueError("Handler is not handling this event, so cannot unhandle it.")
+		return self
+
+	def unhandle_all(self):
+		with self.__lock:
+			self.__handlers.clear()
+
+	def fire(self, *args, **kargs):
+		with self.__lock:
+			for handler in self.__handlers:
+				try:
+					handler(*args, **kargs)
+				except Exception, e:
+					logging.exception('exception while calling event handler : %r' % handler)
+					if not self.__safe:
+						raise
+
+	@property
+	def handler_count(self):
+		with self.__lock:
+			return len(self.__handlers)
+
+	__iadd__ = handle
+	__isub__ = unhandle
+	__call__ = fire
+	__len__  = handler_count
+
+#=======================================================================================================================
+# Useful threads
+#=======================================================================================================================
+
 class StoppableThread(threading.Thread):
 
 	def __init__(self):
@@ -76,3 +136,14 @@ class StoppableThread(threading.Thread):
 
 	def sleep(self, timeout):
 		return self.__stop_event.wait(timeout)
+
+#=======================================================================================================================
+# Traits
+#=======================================================================================================================
+
+class Identifiable(object):
+
+	def __init__(self, **kwargs):
+		self.__identifier = kwargs.pop('identifier', None)
+
+

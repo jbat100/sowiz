@@ -4,43 +4,8 @@ import time
 
 from sowiz.util import variable_type_check
 from sowiz.network.osc import Client
-from sowiz.description.core import EventOSCTranslator
+from sowiz.description.core import EventClient, EventOSCTranslator
 from sowiz.util import StoppableThread
-
-
-class EventClient(object):
-
-	def send(self, event):
-		"""
-		:param annotation: an description which the client should do something with
-		:raise NotImplementedError:
-		"""
-		raise NotImplementedError()
-
-class EventMultiClient(EventClient):
-
-	def __init__(self):
-		self.__clients = []
-
-	def add_client(self, client):
-		if client not in self.__clients:
-			self.__clients.append(client)
-		else:
-			raise ValueError('already contains %s' % str(client))
-
-	def remove_client(self, client):
-		if client in self.__clients:
-			self.__clients.remove(client)
-		else:
-			raise ValueError('does not contains %s' % str(client))
-
-	@property
-	def clients(self):
-		return iter(self.__clients)
-
-	def send(self, event):
-		for client in self.clients:
-			client.send(event)
 
 
 class EventPrintClient(EventClient):
@@ -96,10 +61,10 @@ class EventPlayerThread(StoppableThread):
 	def run(self):
 		logging.debug('starting player thread')
 		while True:
-			event = self.queue.get()
+			reader, event = self.queue.get()
 			logging.debug('player thread got %s' % str(event))
 			if event is not None:
-				self.client.send(event)
+				self.client.send(reader, event)
 			elif self.is_stopped():
 				break
 
@@ -134,7 +99,7 @@ class EventReaderThread(StoppableThread):
 				self.sleep(wait_time)
 			if self.is_stopped():
 				break
-			self.queue.put(event)
+			self.queue.put((self.reader, event))
 		logging.debug('ending reader thread %s' % str(self.reader))
 
 

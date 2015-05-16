@@ -5,7 +5,7 @@ import mido
 
 from sowiz.network.osc import Message
 from sowiz.util import variable_type_check
-from sowiz.description.core import Event, EventFileReader
+from sowiz.description.core import Event, EventFileReader, EventOSCTranslator
 
 class MidiMessage(Event):
 
@@ -14,7 +14,9 @@ class MidiMessage(Event):
 		self.__mido_message = None
 
 	def __str__(self):
-		s = super(MidiMessage, self).__str__()
+		s = super(MidiMessage, self).__str__() + ' type : ' + self.type
+		for attribute in self.attributes:
+			s += ', ' + attribute + ' : ' + str(getattr(self, attribute))
 		return s
 
 	def __getattr__(self, item):
@@ -48,14 +50,11 @@ class MidiMessage(Event):
 		return midi_message
 
 
-class MidiOSCTranslator(object):
+class MidiOSCTranslator(EventOSCTranslator):
 
 	EVENT_TYPE = MidiMessage
 
 	PATH_PREFIX = '/sowiz/midi/'
-
-	def __init__(self):
-		pass
 
 	def translate(self, midi_event):
 		variable_type_check(midi_event, MidiMessage)
@@ -75,6 +74,7 @@ class MidiFileReader(EventFileReader):
 	def events(self):
 		mido_messages = mido.MidiFile(self.file_path)
 		time_stamp = 0.0
+		logging.debug('reading midi events from %s' % self.file_path)
 		for mido_message in mido_messages:
 			time_stamp += mido_message.time
 			if isinstance(mido_message, mido.MetaMessage):
@@ -82,6 +82,7 @@ class MidiFileReader(EventFileReader):
 				continue
 			# time from mido is relative to last, so we add it on to the current time stamp
 			message = MidiMessage.new_from_mido_message(self.identifier, time_stamp, mido_message)
+			logging.debug('read midi message %s' % message)
 			yield message
 
 

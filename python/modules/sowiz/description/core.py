@@ -1,3 +1,4 @@
+
 class Event(object):
 
 	def __init__(self, identifier, time_stamp):
@@ -5,7 +6,7 @@ class Event(object):
 		self.__time_stamp = time_stamp
 
 	def __str__(self):
-		s = self.__class__.__name__ + ' ' + self.identifier + ' time_stamp: ' + str(self.time_stamp)
+		s = self.__class__.__name__ + ' identifier: ' + str(self.identifier) + ', time_stamp: ' + str(self.time_stamp)
 		return s
 
 	@property
@@ -23,7 +24,7 @@ class EventReader(object):
 		self.__identifier = identifier
 
 	def __str__(self):
-		return self.__class__.__name__ + ' identifier : ' + self.identifier
+		return self.__class__.__name__ + ' identifier : ' + str(self.identifier)
 
 	@property
 	def identifier(self):
@@ -33,6 +34,40 @@ class EventReader(object):
 	@property
 	def events(self):
 		return iter([])
+
+class EventClient(object):
+
+	def send(self, reader, event):
+		"""
+		:param annotation: an description which the client should do something with
+		:raise NotImplementedError:
+		"""
+		raise NotImplementedError()
+
+class EventMultiClient(EventClient):
+
+	def __init__(self, clients):
+		self.__clients = list(clients)
+
+	def add_client(self, client):
+		if client not in self.__clients:
+			self.__clients.append(client)
+		else:
+			raise ValueError('already contains %s' % str(client))
+
+	def remove_client(self, client):
+		if client in self.__clients:
+			self.__clients.remove(client)
+		else:
+			raise ValueError('does not contains %s' % str(client))
+
+	@property
+	def clients(self):
+		return iter(self.__clients)
+
+	def send(self, reader, event):
+		for client in self.clients:
+			client.send(reader, event)
 
 
 class EventFileReader(EventReader):
@@ -60,4 +95,7 @@ class EventOSCTranslator(object):
 
 def get_all_event_file_reader_classes():
 	return [cls for cls in globals()['EventFileReader'].__subclasses__()]
+
+def get_event_file_reader_classes_for_extension(extension):
+	return [ cls for cls in get_all_event_file_reader_classes() if extension in cls.EXPECTED_EXTENSIONS ]
 

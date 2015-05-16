@@ -13,15 +13,14 @@ class Package(object):
 		return self.__path
 
 	@property
-	def annotation_file_names(self):
+	def file_names(self):
 		items = os.listdir(self.path)
 		for item in items:
-			if os.path.splitext(item)[1] == '.csv':
-				yield item
+			yield item
 
 	@property
-	def annotation_file_paths(self):
-	    for name in self.annotation_file_names:
+	def file_paths(self):
+	    for name in self.file_names:
 			yield os.path.join(self.path, name)
 
 

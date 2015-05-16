@@ -2,7 +2,7 @@ import os
 
 from sowiz.network.osc import Message
 from sowiz.util import variable_type_check
-from sowiz.description.core import Event, EventFileReader
+from sowiz.description.core import Event, EventFileReader, EventOSCTranslator
 from sowiz.description.config import annotation_type_for_annotation_file_name
 
 class Annotation(Event):
@@ -20,6 +20,18 @@ class Annotation(Event):
 	def values(self):
 		return iter(self.__values)
 
+	@property
+	def value_count(self):
+		return len(self.__values)
+
+	def get_values_for_indeces(self, indeces):
+		values = []
+		for i in indeces:
+			if not 0 <= i < len(self.__values):
+				raise ValueError('invalid index %d' % i)
+			values.append(self.__values[i])
+		return values
+
 	@classmethod
 	def new_from_string(cls, identifier, annotation_string, seperator=','):
 		all_values = annotation_string.split(seperator)
@@ -30,7 +42,7 @@ class Annotation(Event):
 		return cls(identifier, time_stamp, values)
 
 
-class AnnotationOSCTranslator(object):
+class AnnotationOSCTranslator(EventOSCTranslator):
 
 	EVENT_TYPE = Annotation
 
