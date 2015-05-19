@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: f9c35f39cf98e441f843e8f99430b472
+ShaderImporter:
+  defaultTextures:
+  - _RTexture: {fileID: 2800000, guid: 156bbc67745034236b713da36e7dd581, type: 3}
+  - _GTexture: {fileID: 2800000, guid: c4b94d00a5b734c34a80fb5b1dfadbe8, type: 3}
+  - _BTexture: {fileID: 2800000, guid: 9c6533624a7b741ea886fcec76aa0ce7, type: 3}
+  - _ATexture: {fileID: 2800000, guid: f06d1a774b2274a078cd4a08e992e997, type: 3}
+  - _BlendTexture: {fileID: 2800000, guid: e9c46d24bb85d41b7bb20b2e5aa11dfa, type: 3}
+  userData: 

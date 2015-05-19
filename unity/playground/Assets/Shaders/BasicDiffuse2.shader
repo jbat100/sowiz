@@ -11,7 +11,7 @@
 		LOD 200
 		
 		CGPROGRAM
-		#pragma surface surf BasicDiffuse3
+		#pragma surface surf BasicDiffuse4
 
 		float4 _EmissiveColor;
         float4 _AmbientColor;
@@ -44,6 +44,20 @@
          	float difLight = max(0, dot(s.Normal, lightDir));
          	float halfLambert = difLight * 0.5 + 0.5;
          	float3 ramp = tex2D(_RampTex, float2(halfLambert)).rgb;
+         	
+         	float4 col;
+         	//col.rgb = s.Albedo * _LightColor0.rgb * (halfLambert * atten * 2);
+         	col.rgb = s.Albedo * _LightColor0.rgb * (ramp);
+         	col.a = s.Alpha;
+         	return col;
+		}
+		
+		inline float4 LightingBasicDiffuse4 (SurfaceOutput s, fixed3 lightDir, fixed3 viewDir, fixed atten)
+        {
+         	float difLight = dot(s.Normal, lightDir);
+         	float rimLight = dot(s.Normal, viewDir);
+         	float halfLambert = difLight * 0.5 + 0.5;
+         	float3 ramp = tex2D(_RampTex, float2(halfLambert, rimLight)).rgb;
          	
          	float4 col;
          	//col.rgb = s.Albedo * _LightColor0.rgb * (halfLambert * atten * 2);
