@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		100C40C01B5C063800EC1BF6 /* Extractor.exp in Sources */ = {isa = PBXBuildFile; fileRef = 8BA05A670720730100365D66 /* Extractor.exp */; };
 		100C40C11B5C063900EC1BF6 /* Extractor.exp in Sources */ = {isa = PBXBuildFile; fileRef = 8BA05A670720730100365D66 /* Extractor.exp */; };
+		1023080B1B5EB1A000DFC2F5 /* ExtractorModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 102308091B5EB1A000DFC2F5 /* ExtractorModule.cpp */; };
+		1023080C1B5EB1A000DFC2F5 /* ExtractorModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 1023080A1B5EB1A000DFC2F5 /* ExtractorModule.h */; };
 		3E82144E08980DED00D00186 /* CAVectorUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E82144B08980DED00D00186 /* CAVectorUnit.cpp */; };
 		3E82144F08980DED00D00186 /* CAVectorUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E82144C08980DED00D00186 /* CAVectorUnit.h */; };
 		3E82145008980DED00D00186 /* CAVectorUnitTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E82144D08980DED00D00186 /* CAVectorUnitTypes.h */; };
@@ -88,6 +90,8 @@
 
 /* Begin PBXFileReference section */
 		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		102308091B5EB1A000DFC2F5 /* ExtractorModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExtractorModule.cpp; path = Source/AUSource/ExtractorModule.cpp; sourceTree = "<group>"; };
+		1023080A1B5EB1A000DFC2F5 /* ExtractorModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExtractorModule.h; path = Source/AUSource/ExtractorModule.h; sourceTree = "<group>"; };
 		32BAE0B30371A71500C91783 /* ExtractorUnit_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtractorUnit_Prefix.pch; sourceTree = "<group>"; };
 		3E82144B08980DED00D00186 /* CAVectorUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVectorUnit.cpp; sourceTree = "<group>"; };
 		3E82144C08980DED00D00186 /* CAVectorUnit.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVectorUnit.h; sourceTree = "<group>"; };
@@ -232,6 +236,8 @@
 				8BA05A660720730100365D66 /* Extractor.cpp */,
 				8BA05A670720730100365D66 /* Extractor.exp */,
 				8BA05A690720730100365D66 /* ExtractorVersion.h */,
+				1023080A1B5EB1A000DFC2F5 /* ExtractorModule.h */,
+				102308091B5EB1A000DFC2F5 /* ExtractorModule.cpp */,
 			);
 			name = "AU Source";
 			sourceTree = "<group>";
@@ -352,6 +358,7 @@
 				8BA05AE60720742100365D66 /* CAAudioChannelLayout.h in Headers */,
 				8BA05AE80720742100365D66 /* CAMutex.h in Headers */,
 				8BA05AEA0720742100365D66 /* CAStreamBasicDescription.h in Headers */,
+				1023080C1B5EB1A000DFC2F5 /* ExtractorModule.h in Headers */,
 				4C56E93B0804AE2C00DE6468 /* Extractor.h in Headers */,
 				3E82144F08980DED00D00186 /* CAVectorUnit.h in Headers */,
 				3E82145008980DED00D00186 /* CAVectorUnitTypes.h in Headers */,
@@ -480,6 +487,7 @@
 				8BA05AB2072073D300365D66 /* AUInputElement.cpp in Sources */,
 				8BA05AB4072073D300365D66 /* AUOutputElement.cpp in Sources */,
 				100C40C01B5C063800EC1BF6 /* Extractor.exp in Sources */,
+				1023080B1B5EB1A000DFC2F5 /* ExtractorModule.cpp in Sources */,
 				8BA05AB7072073D300365D66 /* AUScopeElement.cpp in Sources */,
 				8BA05AB9072073D300365D66 /* ComponentBase.cpp in Sources */,
 				8BA05AC6072073D300365D66 /* AUEffectBase.cpp in Sources */,
@@ -544,6 +552,7 @@
 					Foundation,
 					"-framework",
 					AppKit,
+					"-loscpack",
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = CocoaExtractorView;
@@ -573,6 +582,7 @@
 					Foundation,
 					"-framework",
 					AppKit,
+					"-loscpack",
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = CocoaExtractorView;
@@ -600,6 +610,7 @@
 					Foundation,
 					"-framework",
 					AppKit,
+					"-loscpack",
 				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = CocoaExtractorView;
@@ -692,6 +703,13 @@
 		3EED094A089806170095A620 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/Cellar/aubio/0.4.1/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 			};
@@ -700,6 +718,13 @@
 		3EED094B089806170095A620 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/Cellar/aubio/0.4.1/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 			};
@@ -708,6 +733,13 @@
 		3EED094C089806170095A620 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/usr/local/Cellar/aubio/0.4.1/include,
+					/usr/local/include,
+				);
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				SDKROOT = macosx;
 			};

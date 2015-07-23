@@ -1,58 +1,16 @@
-/*
-     File: Extractor.cpp
- Abstract: Extractor.h
-  Version: 1.0.1
- 
- Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
- Inc. ("Apple") in consideration of your agreement to the following
- terms, and your use, installation, modification or redistribution of
- this Apple software constitutes acceptance of these terms.  If you do
- not agree with these terms, please do not use, install, modify or
- redistribute this Apple software.
- 
- In consideration of your agreement to abide by the following terms, and
- subject to these terms, Apple grants you a personal, non-exclusive
- license, under Apple's copyrights in this original Apple software (the
- "Apple Software"), to use, reproduce, modify and redistribute the Apple
- Software, with or without modifications, in source and/or binary forms;
- provided that if you redistribute the Apple Software in its entirety and
- without modifications, you must retain this notice and the following
- text and disclaimers in all such redistributions of the Apple Software.
- Neither the name, trademarks, service marks or logos of Apple Inc. may
- be used to endorse or promote products derived from the Apple Software
- without specific prior written permission from Apple.  Except as
- expressly stated in this notice, no other rights or licenses, express or
- implied, are granted by Apple herein, including but not limited to any
- patent rights that may be infringed by your derivative works or by other
- works in which the Apple Software may be incorporated.
- 
- The Apple Software is provided by Apple on an "AS IS" basis.  APPLE
- MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
- THE IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS
- FOR A PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND
- OPERATION ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
- 
- IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL
- OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
- MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED
- AND WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE),
- STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
- POSSIBILITY OF SUCH DAMAGE.
- 
- Copyright (C) 2014 Apple Inc. All Rights Reserved.
- 
-*/
 
 #include "AUEffectBase.h"
 #include <AudioToolbox/AudioUnitUtilities.h>
 #include "ExtractorVersion.h"
 #include "Extractor.h"
+
+#include <aubio/aubio.h>
 #include <math.h>
+#include <list>
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #pragma mark ____ExtractorKernel
+
 
 class ExtractorKernel : public AUKernelBase		// the actual filter DSP happens here
 {
@@ -69,29 +27,15 @@ public:
 
 	// resets the filter state
 	virtual void		Reset();
-
-	void				CalculateLopassParams(	double inFreq, double inResonance );
-
-	// used by the custom property handled in the Extractor class below
-	double				GetFrequencyResponse( double inFreq );
-	
 			
 private:
-	// filter coefficients
-	double	mA0;
-	double	mA1;
-	double	mA2;
-	double	mB1;
-	double	mB2;
-
-	// filter state
-	double	mX1;
-	double	mX2;
-	double	mY1;
-	double	mY2;
-	
-	double	mLastCutoff;
-	double	mLastResonance;
+    
+    fvec_t* mAubioInputBuffer;
+    
+    int mCurrentBufferSize;
+    
+    ExtractorImplementation* mExtractorImplentation;
+    
 };
 
 
@@ -133,8 +77,8 @@ public:
 	// we'll report a 1ms tail.   A reverb effect would have a much more substantial tail on
 	// the order of several seconds....
 	//
-	virtual	bool				SupportsTail () { return true; }
-    virtual Float64				GetTailTime() {return 0.001;}
+	virtual	bool				SupportsTail () { return false; }
+    virtual Float64				GetTailTime() {return 0.0;}
 
 	// we have no latency
 	//
@@ -151,38 +95,10 @@ protected:
 AUDIOCOMPONENT_ENTRY(AUBaseProcessFactory, Extractor)
 
 
-enum
-{
-	kExtractorParam_CutoffFrequency = 0,
-	kExtractorParam_Resonance = 1
-};
+const float kDefaultScale = 1.0;
 
+const float kDefaultOffset = 0.0;
 
-static CFStringRef kCutoffFreq_Name = CFSTR("cutoff frequency");
-static CFStringRef kResonance_Name = CFSTR("resonance");
-
-
-const float kMinCutoffHz = 12.0;
-const float kDefaultCutoff = 1000.0;
-const float kMinResonance = -20.0;
-const float kMaxResonance = 20.0;
-const float kDefaultResonance = 0;
-
-
-
-// Factory presets
-static const int kPreset_One = 0;
-static const int kPreset_Two = 1;
-static const int kNumberPresets = 2;
-
-static AUPreset kPresets[kNumberPresets] = 
-    {
-        { kPreset_One, CFSTR("Preset One") },		
-        { kPreset_Two, CFSTR("Preset Two") }		
-	};
-	
-static const int kPresetDefault = kPreset_One;
-static const int kPresetDefaultIndex = 0;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #pragma mark ____Construction_Initialization
@@ -192,26 +108,16 @@ static const int kPresetDefaultIndex = 0;
 //	Extractor::Extractor
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Extractor::Extractor(AudioUnit component)
-	: AUEffectBase(component)
+Extractor::Extractor(AudioUnit component) : AUEffectBase(component)
 {
-	// all the parameters must be set to their initial values here
-	//
-	// these calls have the effect both of defining the parameters for the first time
-	// and assigning their initial values
-	//
-	SetParameter(kExtractorParam_CutoffFrequency, kDefaultCutoff );
-	SetParameter(kExtractorParam_Resonance, kDefaultResonance );
 
-	// kExtractorParam_CutoffFrequency max value depends on sample-rate
-	SetParamHasSampleRateDependency(true );
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //	Extractor::Initialize
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-OSStatus			Extractor::Initialize()
+OSStatus Extractor::Initialize()
 {
 	OSStatus result = AUEffectBase::Initialize();
 	
@@ -219,7 +125,8 @@ OSStatus			Extractor::Initialize()
 	{
 		// in case the AU was un-initialized and parameters were changed, the view can now
 		// be made aware it needs to update the frequency response curve
-		PropertyChanged(kAudioUnitCustomProperty_ExtractorFrequencyResponse, kAudioUnitScope_Global, 0 );
+        PropertyChanged(kAudioUnitCustomProperty_ExtractorCurrentValue, kAudioUnitScope_Global, 0 );
+        PropertyChanged(kAudioUnitCustomProperty_ExtractorCount, kAudioUnitScope_Global, 0 );
 	}
 	
 	return result;
@@ -233,37 +140,19 @@ OSStatus			Extractor::Initialize()
 //	Extractor::GetParameterInfo
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-OSStatus			Extractor::GetParameterInfo(	AudioUnitScope			inScope,
-												AudioUnitParameterID	inParameterID,
-												AudioUnitParameterInfo	&outParameterInfo )
+OSStatus Extractor::GetParameterInfo(   AudioUnitScope          inScope,
+                                        AudioUnitParameterID	inParameterID,
+                                        AudioUnitParameterInfo	&outParameterInfo )
 {
 	OSStatus result = noErr;
 
-	outParameterInfo.flags = 	kAudioUnitParameterFlag_IsWritable
-						+		kAudioUnitParameterFlag_IsReadable;
+	outParameterInfo.flags = kAudioUnitParameterFlag_IsWritable + kAudioUnitParameterFlag_IsReadable;
 		
 	if (inScope == kAudioUnitScope_Global) {
 		
 		switch(inParameterID)
 		{
-			case kExtractorParam_CutoffFrequency:
-				AUBase::FillInParameterName (outParameterInfo, kCutoffFreq_Name, false);
-				outParameterInfo.unit = kAudioUnitParameterUnit_Hertz;
-				outParameterInfo.minValue = kMinCutoffHz;
-				outParameterInfo.maxValue = GetSampleRate() * 0.5;
-				outParameterInfo.defaultValue = kDefaultCutoff;
-				outParameterInfo.flags += kAudioUnitParameterFlag_IsHighResolution;
-				outParameterInfo.flags += kAudioUnitParameterFlag_DisplayLogarithmic;
-				break;
-				
-			case kExtractorParam_Resonance:
-				AUBase::FillInParameterName (outParameterInfo, kResonance_Name, false);
-				outParameterInfo.unit = kAudioUnitParameterUnit_Decibels;
-				outParameterInfo.minValue = kMinResonance;
-				outParameterInfo.maxValue = kMaxResonance;
-				outParameterInfo.defaultValue = kDefaultResonance;
-				outParameterInfo.flags += kAudioUnitParameterFlag_IsHighResolution;
-				break;
+            // current design has no parameters
 				
 			default:
 				result = kAudioUnitErr_InvalidParameter;
@@ -298,11 +187,17 @@ OSStatus Extractor::GetPropertyInfo (   AudioUnitPropertyID				inID,
 				outDataSize = sizeof (AudioUnitCocoaViewInfo);
 				return noErr;
 
-			case kAudioUnitCustomProperty_ExtractorFrequencyResponse:	// our custom property
+			case kAudioUnitCustomProperty_ExtractorModuleConfigurations:	// our custom property
 				if(inScope != kAudioUnitScope_Global ) return kAudioUnitErr_InvalidScope;
-				outDataSize = kNumberOfResponseFrequencies * sizeof(FrequencyResponse);
-				outWritable = false;
+				outDataSize = sizeof(CFArrayRef);
+				outWritable = true;
 				return noErr;
+                
+            case kAudioUnitCustomProperty_AnalysisBufferSize:
+                if(inScope != kAudioUnitScope_Global ) return kAudioUnitErr_InvalidScope;
+                outDataSize = sizeof(int);
+                outWritable = false;
+                return noErr;
 		}
 	}
 	
@@ -313,10 +208,10 @@ OSStatus Extractor::GetPropertyInfo (   AudioUnitPropertyID				inID,
 //	Extractor::GetProperty
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-OSStatus			Extractor::GetProperty (	AudioUnitPropertyID 		inID,
-											AudioUnitScope 				inScope,
-											AudioUnitElement			inElement,
-											void *						outData)
+OSStatus Extractor::GetProperty (	AudioUnitPropertyID 		inID,
+                                    AudioUnitScope 				inScope,
+                                    AudioUnitElement			inElement,
+                                    void *						outData)
 {
 	if (inScope == kAudioUnitScope_Global)
 	{
@@ -494,62 +389,7 @@ void ExtractorKernel::Reset()
 	mLastResonance = -1.0;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	ExtractorKernel::CalculateLopassParams()
-//
-//		inFreq is normalized frequency 0 -> 1
-//		inResonance is in decibels
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-void ExtractorKernel::CalculateLopassParams(	double inFreq,
-											double inResonance )
-{
-    double r = pow(10.0, 0.05 * -inResonance);		// convert from decibels to linear
-    
-    double k = 0.5 * r * sin(M_PI * inFreq);
-    double c1 = 0.5 * (1.0 - k) / (1.0 + k);
-    double c2 = (0.5 + c1) * cos(M_PI * inFreq);
-    double c3 = (0.5 + c1 - c2) * 0.25;
-    
-    mA0 = 2.0 *   c3;
-    mA1 = 2.0 *   2.0 * c3;
-    mA2 = 2.0 *   c3;
-    mB1 = 2.0 *   -c2;
-    mB2 = 2.0 *   c1;
-}
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	ExtractorKernel::GetFrequencyResponse()
-//
-//		returns scalar magnitude response
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-double ExtractorKernel::GetFrequencyResponse( double inFreq /* in Hertz */ )
-{
-	float srate = GetSampleRate();
-	
-	double scaledFrequency = 2.0 * inFreq / srate;
-	
-	// frequency on unit circle in z-plane
-	double zr = cos(M_PI * scaledFrequency);
-	double zi = sin(M_PI * scaledFrequency);
-	
-	// zeros response
-	double num_r = mA0*(zr*zr - zi*zi) + mA1*zr + mA2;
-	double num_i = 2.0*mA0*zr*zi + mA1*zi;
-	
-	double num_mag = sqrt(num_r*num_r + num_i*num_i);
-	
-	// poles response
-	double den_r = zr*zr - zi*zi + mB1*zr + mB2;
-	double den_i = 2.0*zr*zi + mB1*zi;
-	
-	double den_mag = sqrt(den_r*den_r + den_i*den_i);
-	
-	// total response
-	double response = num_mag  / den_mag;
-
-	
-	return response;
-}
 
 
 
@@ -558,6 +398,7 @@ double ExtractorKernel::GetFrequencyResponse( double inFreq /* in Hertz */ )
 //
 //		We process one non-interleaved stream at a time
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 void ExtractorKernel::Process(	const Float32 	*inSourceP,
 							Float32 		*inDestP,
 							UInt32 			inFramesToProcess,

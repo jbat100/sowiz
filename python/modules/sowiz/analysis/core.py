@@ -2,6 +2,9 @@ import json
 import essentia.standard
 
 
+ # salut c'est jonathan
+
+
 class FeatureExtractor(object):
 	
 	def __init__(self, audio, writer):
