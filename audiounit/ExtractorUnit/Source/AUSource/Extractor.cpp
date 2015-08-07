@@ -3,6 +3,7 @@
 #include <AudioToolbox/AudioUnitUtilities.h>
 #include "ExtractorVersion.h"
 #include "Extractor.h"
+#include "ExtractorModule.h"
 
 #include <aubio/aubio.h>
 #include <math.h>
@@ -14,19 +15,21 @@
 
 class ExtractorKernel : public AUKernelBase		// the actual filter DSP happens here
 {
+    
 public:
-	ExtractorKernel(AUEffectBase *inAudioUnit );
+    
+	ExtractorKernel(AUEffectBase *inAudioUnit);
 	virtual ~ExtractorKernel();
 			
-	// processes one channel of non-interleaved samples
-	virtual void 		Process(	const Float32 	*inSourceP,
-									Float32		 	*inDestP,
-									UInt32 			inFramesToProcess,
-									UInt32			inNumChannels,
-									bool &			ioSilence);
+	virtual void Process(   const Float32 	*inSourceP,
+                            Float32		 	*inDestP,
+                            UInt32 			inFramesToProcess,
+                            UInt32			inNumChannels,
+                            bool &			ioSilence);
 
-	// resets the filter state
-	virtual void		Reset();
+	virtual void Reset();
+    
+    void SetAubioBufferSize(UInt32 size);
 			
 private:
     
@@ -34,7 +37,7 @@ private:
     
     int mCurrentBufferSize;
     
-    ExtractorImplementation* mExtractorImplentation;
+    std::list<ExtractorModule*> mExtractorModules;
     
 };
 
@@ -44,7 +47,9 @@ private:
 
 class Extractor : public AUEffectBase
 {
+    
 public:
+    
 	Extractor(AudioUnit component);
 
 	virtual OSStatus			Version() { return kExtractorVersion; }
@@ -87,6 +92,12 @@ public:
 
 
 protected:
+    
+    CAExtractorModuleConfiguration mDefaultConfiguration;
+    
+    std::list<CAExtractorModuleConfiguration> mConfigurations;
+    
+    
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,8 +106,10 @@ protected:
 AUDIOCOMPONENT_ENTRY(AUBaseProcessFactory, Extractor)
 
 
-const float kDefaultScale = 1.0;
+const int kDefaultAnalysisBufferSize = 1024;
+const int kDefaultExtractorCount = 0;
 
+const float kDefaultScale = 1.0;
 const float kDefaultOffset = 0.0;
 
 
@@ -125,7 +138,7 @@ OSStatus Extractor::Initialize()
 	{
 		// in case the AU was un-initialized and parameters were changed, the view can now
 		// be made aware it needs to update the frequency response curve
-        PropertyChanged(kAudioUnitCustomProperty_ExtractorCurrentValue, kAudioUnitScope_Global, 0 );
+        PropertyChanged(kAudioUnitCustomProperty_AnalysisBufferSize, kAudioUnitScope_Global, 0 );
         PropertyChanged(kAudioUnitCustomProperty_ExtractorCount, kAudioUnitScope_Global, 0 );
 	}
 	
@@ -165,13 +178,10 @@ OSStatus Extractor::GetParameterInfo(   AudioUnitScope          inScope,
 	return result;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #pragma mark ____Properties
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	Extractor::GetPropertyInfo
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------
+
 OSStatus Extractor::GetPropertyInfo (   AudioUnitPropertyID				inID,
                                         AudioUnitScope					inScope,
                                         AudioUnitElement				inElement,
@@ -189,11 +199,23 @@ OSStatus Extractor::GetPropertyInfo (   AudioUnitPropertyID				inID,
 
 			case kAudioUnitCustomProperty_ExtractorModuleConfigurations:	// our custom property
 				if(inScope != kAudioUnitScope_Global ) return kAudioUnitErr_InvalidScope;
-				outDataSize = sizeof(CFArrayRef);
+				outDataSize = sizeof(std::list<CAExtractorModuleConfiguration>);
 				outWritable = true;
 				return noErr;
                 
+            case kAudioUnitCustomProperty_ExtractorModuleConfiguration:	// our custom property
+                if(inScope != kAudioUnitScope_Global ) return kAudioUnitErr_InvalidScope;
+                outDataSize = sizeof(CAExtractorModuleConfiguration);
+                outWritable = true;
+                return noErr;
+                
             case kAudioUnitCustomProperty_AnalysisBufferSize:
+                if(inScope != kAudioUnitScope_Global ) return kAudioUnitErr_InvalidScope;
+                outDataSize = sizeof(int);
+                outWritable = false;
+                return noErr;
+                
+            case kAudioUnitCustomProperty_ExtractorCount:
                 if(inScope != kAudioUnitScope_Global ) return kAudioUnitErr_InvalidScope;
                 outDataSize = sizeof(int);
                 outWritable = false;
@@ -204,10 +226,8 @@ OSStatus Extractor::GetPropertyInfo (   AudioUnitPropertyID				inID,
 	return AUEffectBase::GetPropertyInfo (inID, inScope, inElement, outDataSize, outWritable);
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	Extractor::GetProperty
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------
+
 OSStatus Extractor::GetProperty (	AudioUnitPropertyID 		inID,
                                     AudioUnitScope 				inScope,
                                     AudioUnitElement			inElement,
@@ -229,7 +249,7 @@ OSStatus Extractor::GetProperty (	AudioUnitPropertyID 		inID,
                 
 				CFURLRef bundleURL = CFBundleCopyResourceURL( bundle, 
                     CFSTR("CocoaExtractorView"),	// this is the name of the cocoa bundle as specified in the CocoaViewFactory.plist
-                    CFSTR("bundle"),			// this is the extension of the cocoa bundle
+                    CFSTR("bundle"),                // this is the extension of the cocoa bundle
                     NULL);
                 
                 if (bundleURL == NULL) return fnfErr;
@@ -243,43 +263,26 @@ OSStatus Extractor::GetProperty (	AudioUnitPropertyID 		inID,
 
 			// This is our custom property which reports the current frequency response curve
 			//
-			case kAudioUnitCustomProperty_ExtractorFrequencyResponse:
+			case kAudioUnitCustomProperty_ExtractorCount:
 			{
-				if(inScope != kAudioUnitScope_Global) 	return kAudioUnitErr_InvalidScope;
-
-				// the kernels are only created if we are initialized
-				// since we're using the kernels to get the curve info, let
-				// the caller know we can't do it if we're un-initialized
-				// the UI should check for the error and not draw the curve in this case
-				if(!IsInitialized() ) return kAudioUnitErr_Uninitialized;
-
-				FrequencyResponse *freqResponseTable = ((FrequencyResponse*)outData);
-
-				// each of our filter kernel objects (one per channel) will have an identical frequency response
-				// so we arbitrarilly use the first one...
-				//
-				ExtractorKernel *filterKernel = dynamic_cast<ExtractorKernel*>(mKernelList[0]);
-
-
-				double cutoff = GetParameter(kExtractorParam_CutoffFrequency);
-				double resonance = GetParameter(kExtractorParam_Resonance );
-
-				float srate = GetSampleRate();
-				
-				cutoff = 2.0 * cutoff / srate;
-				if(cutoff > 0.99) cutoff = 0.99;		// clip cutoff to highest allowed by sample rate...
-
-				filterKernel->CalculateLopassParams(cutoff, resonance);
-				
-				for(int i = 0; i < kNumberOfResponseFrequencies; i++ )
-				{
-					double frequency = freqResponseTable[i].mFrequency;
-					
-					freqResponseTable[i].mMagnitude = filterKernel->GetFrequencyResponse(frequency);
-				}
-
-				return noErr;
+                *((int*)outData) = 0;
 			}
+ 
+            case kAudioUnitCustomProperty_AnalysisBufferSize:
+            {
+                *((int*)outData) = kDefaultAnalysisBufferSize;
+            }
+                
+            case kAudioUnitCustomProperty_ExtractorModuleConfigurations:
+            {
+                *((std::list<CAExtractorModuleConfiguration>*)outData) = mConfigurations;
+            }
+                
+            case kAudioUnitCustomProperty_ExtractorModuleConfiguration:
+            {
+                *((CAExtractorModuleConfiguration*)outData) = mDefaultConfiguration;
+            }
+            
 		}
 	}
 	
@@ -288,150 +291,64 @@ OSStatus Extractor::GetProperty (	AudioUnitPropertyID 		inID,
 }
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 #pragma mark ____Presets
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	Extractor::GetPresets
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-OSStatus			Extractor::GetPresets (		CFArrayRef * 		outData) const
+//------------------------------------------------------------------------------------------
+
+OSStatus Extractor::GetPresets (CFArrayRef* outData) const
 {
-		// this is used to determine if presets are supported 
-		// which in this unit they are so we implement this method!
+    // this is used to determine if presets are supported 
+    // which in this unit they are so we implement this method!
 	if (outData == NULL) return noErr;
-	
-	CFMutableArrayRef theArray = CFArrayCreateMutable (NULL, kNumberPresets, NULL);
-	for (int i = 0; i < kNumberPresets; ++i) {
-		CFArrayAppendValue (theArray, &kPresets[i]);
-    }
-    
+	CFMutableArrayRef theArray = CFArrayCreateMutable(NULL, 0, NULL);
 	*outData = (CFArrayRef)theArray;	// client is responsible for releasing the array
 	return noErr;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	Extractor::NewFactoryPresetSet
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-OSStatus	Extractor::NewFactoryPresetSet (const AUPreset & inNewFactoryPreset)
+//------------------------------------------------------------------------------------------
+
+OSStatus Extractor::NewFactoryPresetSet (const AUPreset & inNewFactoryPreset)
 {
-	SInt32 chosenPreset = inNewFactoryPreset.presetNumber;
-	
-	for(int i = 0; i < kNumberPresets; ++i)
-	{
-		if(chosenPreset == kPresets[i].presetNumber)
-		{
-			// set whatever state you need to based on this preset's selection
-			//
-			// Here we use a switch statement, but it would also be possible to
-			// use chosenPreset as an index into an array (if you publish the preset
-			// numbers as indices in the GetPresets() method)
-			//			
-			switch(chosenPreset)
-			{
-				case kPreset_One:
-					SetParameter(kExtractorParam_CutoffFrequency, 200.0 );
-					SetParameter(kExtractorParam_Resonance, -5.0 );
-					break;
-				case kPreset_Two:
-					SetParameter(kExtractorParam_CutoffFrequency, 1000.0 );
-					SetParameter(kExtractorParam_Resonance, 10.0 );
-					break;
-			}
-            
-            SetAFactoryPresetAsCurrent (kPresets[i]);
-			return noErr;
-		}
-	}
-	
-	return kAudioUnitErr_InvalidPropertyValue;
+	return noErr;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #pragma mark ____ExtractorKernel
 
+//------------------------------------------------------------------------------------------
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	ExtractorKernel::ExtractorKernel()
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-ExtractorKernel::ExtractorKernel(AUEffectBase *inAudioUnit ) : AUKernelBase(inAudioUnit)
+ExtractorKernel::ExtractorKernel(AUEffectBase *inAudioUnit ) : AUKernelBase(inAudioUnit), mAubioInputBuffer(0), mCurrentBufferSize(0)
 {
+    mAubioInputBuffer = new_fvec ((uint_t) kDefaultAnalysisBufferSize);
+    
 	Reset();
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	ExtractorKernel::~ExtractorKernel()
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------
+
 ExtractorKernel::~ExtractorKernel( )
 {
 }
 
+//------------------------------------------------------------------------------------------
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	ExtractorKernel::Reset()
-//
-//		It's very important to fully reset all filter state variables to their
-//		initial settings here.  For delay/reverb effects, the delay buffers must
-//		also be cleared here.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void ExtractorKernel::Reset()
 {
-	mX1 = 0.0;
-	mX2 = 0.0;
-	mY1 = 0.0;
-	mY2 = 0.0;
-	
-	// forces filter coefficient calculation
-	mLastCutoff = -1.0;
-	mLastResonance = -1.0;
+    for ( ExtractorModule* module : mExtractorModules) {
+        module->reset();
+    }
+    
+    mCurrentBufferSize = 0;
 }
 
-
-
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//	ExtractorKernel::Process(int inFramesToProcess)
-//
-//		We process one non-interleaved stream at a time
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//------------------------------------------------------------------------------------------
 
 void ExtractorKernel::Process(	const Float32 	*inSourceP,
-							Float32 		*inDestP,
-							UInt32 			inFramesToProcess,
-							UInt32			inNumChannels,	// for version 2 AudioUnits inNumChannels is always 1
-							bool &			ioSilence)
+                                Float32 		*inDestP,
+                                UInt32 			inFramesToProcess,
+                                UInt32			inNumChannels,	// for version 2 AudioUnits inNumChannels is always 1
+                                bool &			ioSilence)
 {
-	double cutoff = GetParameter(kExtractorParam_CutoffFrequency);
-    double resonance = GetParameter(kExtractorParam_Resonance );
-    
-	// do bounds checking on parameters
-	//
-    if(cutoff < kMinCutoffHz) cutoff = kMinCutoffHz;
-
-	if(resonance < kMinResonance ) resonance = kMinResonance;
-	if(resonance > kMaxResonance ) resonance = kMaxResonance;
-
-	
-	// convert to 0->1 normalized frequency
-	float srate = GetSampleRate();
-	
-	cutoff = 2.0 * cutoff / srate;
-	if(cutoff > 0.99) cutoff = 0.99;		// clip cutoff to highest allowed by sample rate...
-	
-
-	// only calculate the filter coefficients if the parameters have changed from last time
-	if(cutoff != mLastCutoff || resonance != mLastResonance )
-	{
-		CalculateLopassParams(cutoff, resonance);
-		
-		mLastCutoff = cutoff;
-		mLastResonance = resonance;		
-	}
-	
 
 	const Float32 *sourceP = inSourceP;
 	Float32 *destP = inDestP;
@@ -442,15 +359,24 @@ void ExtractorKernel::Process(	const Float32 	*inSourceP,
 	//
 	while(n--)
 	{
+        // simply copy to the output (memcopy or something like that might be a lot faster...)
 		float input = *sourceP++;
-		
-		float output = mA0*input + mA1*mX1 + mA2*mX2 - mB1*mY1 - mB2*mY2;
-
-		mX2 = mX1;
-		mX1 = input;
-		mY2 = mY1;
-		mY1 = output;
-		
-		*destP++ = output;
+		*destP++ = input;
+        
+        mAubioInputBuffer->data[mCurrentBufferSize] = input;
+        
+        mCurrentBufferSize++;
+        
+        if (mCurrentBufferSize >= mAubioInputBuffer->length) {
+            mCurrentBufferSize = 0;
+            for (ExtractorModule* module : mExtractorModules) {
+                module->process(mAubioInputBuffer);
+            }
+            
+        }
 	}
 }
+
+
+
+

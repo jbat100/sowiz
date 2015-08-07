@@ -1,5 +1,4 @@
 
-#define kAubioBufferSize 512
 
 // Here we define a custom property so the view is able to retrieve the current frequency
 // response curve.  The curve changes as the filter's cutoff frequency and resonance are
@@ -9,14 +8,17 @@
 // see <AudioUnit/AudioUnitProperties.h> for a list of Apple-defined standard properties
 //
 
-#include <string>
-#include <map>
+#ifndef __ExtractorUnit__Extractor__
+#define __ExtractorUnit__Extractor__
 
-enum
-{
+#define kAubioBufferSize 512
+
+
+enum ExtractorProperty {
 	kAudioUnitCustomProperty_ExtractorModuleConfigurations = 64000,
-    kAudioUnitCustomProperty_AnalysisBufferSize = 64001,
-    kAudioUnitCustomProperty_ExtractorCount = 64002
+    kAudioUnitCustomProperty_ExtractorModuleConfiguration = 64001,
+    kAudioUnitCustomProperty_AnalysisBufferSize = 64002,
+    kAudioUnitCustomProperty_ExtractorCount = 64003
 };
 
 // We'll define our property data to be a size kNumberOfResponseFrequencies array of structs
@@ -38,8 +40,7 @@ typedef struct CAExtractorModuleConfiguration
 } CAExtractorModuleConfiguration;
 
 
-
-
-
 // extractor types
+
+#endif
 

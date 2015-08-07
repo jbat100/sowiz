@@ -47,7 +47,6 @@
 
 
 #import "Extractor_ViewFactory.h"
-#import "Extractor_UIView.h"
 
 @implementation Extractor_ViewFactory
 

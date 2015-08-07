@@ -11,12 +11,14 @@
 		100C40C11B5C063900EC1BF6 /* Extractor.exp in Sources */ = {isa = PBXBuildFile; fileRef = 8BA05A670720730100365D66 /* Extractor.exp */; };
 		1023080B1B5EB1A000DFC2F5 /* ExtractorModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 102308091B5EB1A000DFC2F5 /* ExtractorModule.cpp */; };
 		1023080C1B5EB1A000DFC2F5 /* ExtractorModule.h in Headers */ = {isa = PBXBuildFile; fileRef = 1023080A1B5EB1A000DFC2F5 /* ExtractorModule.h */; };
+		10320FF21B74E89200FCBE29 /* Extractor_UIView.h in Headers */ = {isa = PBXBuildFile; fileRef = 10320FF01B74E89200FCBE29 /* Extractor_UIView.h */; };
+		10320FF31B74E89200FCBE29 /* Extractor_UIView.h in Headers */ = {isa = PBXBuildFile; fileRef = 10320FF01B74E89200FCBE29 /* Extractor_UIView.h */; };
+		10320FF41B74E89200FCBE29 /* Extractor_UIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 10320FF11B74E89200FCBE29 /* Extractor_UIView.m */; };
+		10320FF51B74E89200FCBE29 /* Extractor_UIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 10320FF11B74E89200FCBE29 /* Extractor_UIView.m */; };
 		3E82144E08980DED00D00186 /* CAVectorUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3E82144B08980DED00D00186 /* CAVectorUnit.cpp */; };
 		3E82144F08980DED00D00186 /* CAVectorUnit.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E82144C08980DED00D00186 /* CAVectorUnit.h */; };
 		3E82145008980DED00D00186 /* CAVectorUnitTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 3E82144D08980DED00D00186 /* CAVectorUnitTypes.h */; };
 		4C56E7CB08047C7700DE6468 /* SectionPatternLight.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 4C56E7CA08047C7700DE6468 /* SectionPatternLight.tiff */; };
-		4C56E7E8080482C100DE6468 /* Extractor_GraphView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C56E7E6080482C100DE6468 /* Extractor_GraphView.h */; };
-		4C56E7E9080482C100DE6468 /* Extractor_GraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C56E7E7080482C100DE6468 /* Extractor_GraphView.m */; };
 		4C56E93B0804AE2C00DE6468 /* Extractor.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C56E93A0804AE2C00DE6468 /* Extractor.h */; };
 		4C56E93C0804AE2C00DE6468 /* Extractor.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C56E93A0804AE2C00DE6468 /* Extractor.h */; };
 		4C69E18E083402BA00030563 /* CocoaView.nib in Resources */ = {isa = PBXBuildFile; fileRef = 4C69E18D083402BA00030563 /* CocoaView.nib */; };
@@ -47,9 +49,7 @@
 		8BA05AFD072074E100365D66 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA05AFA072074E100365D66 /* AudioUnit.framework */; };
 		8BA05B02072074F900365D66 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA05B01072074F900365D66 /* CoreServices.framework */; };
 		8BA4AE54073EB72300A2709A /* Extractor_ViewFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BA4ADCE073EB19800A2709A /* Extractor_ViewFactory.h */; };
-		8BA4AE55073EB72300A2709A /* Extractor_UIView.h in Headers */ = {isa = PBXBuildFile; fileRef = 8BA4ADD0073EB19800A2709A /* Extractor_UIView.h */; };
 		8BA4AE56073EB73300A2709A /* Extractor_ViewFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA4ADCF073EB19800A2709A /* Extractor_ViewFactory.m */; };
-		8BA4AE57073EB73300A2709A /* Extractor_UIView.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BA4ADD1073EB19800A2709A /* Extractor_UIView.m */; };
 		8BA4AE5C073EB79000A2709A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA4AE5B073EB79000A2709A /* Cocoa.framework */; };
 		8BA4AE5D073EB7C300A2709A /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA4AE5B073EB79000A2709A /* Cocoa.framework */; };
 		8BA4AE5E073EB7C500A2709A /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA05AFA072074E100365D66 /* AudioUnit.framework */; };
@@ -92,14 +92,14 @@
 		089C167EFE841241C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		102308091B5EB1A000DFC2F5 /* ExtractorModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExtractorModule.cpp; path = Source/AUSource/ExtractorModule.cpp; sourceTree = "<group>"; };
 		1023080A1B5EB1A000DFC2F5 /* ExtractorModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExtractorModule.h; path = Source/AUSource/ExtractorModule.h; sourceTree = "<group>"; };
+		10320FF01B74E89200FCBE29 /* Extractor_UIView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Extractor_UIView.h; path = Source/CocoaUI/Extractor_UIView.h; sourceTree = "<group>"; };
+		10320FF11B74E89200FCBE29 /* Extractor_UIView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Extractor_UIView.m; path = Source/CocoaUI/Extractor_UIView.m; sourceTree = "<group>"; };
 		32BAE0B30371A71500C91783 /* ExtractorUnit_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtractorUnit_Prefix.pch; sourceTree = "<group>"; };
 		3E82144B08980DED00D00186 /* CAVectorUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CAVectorUnit.cpp; sourceTree = "<group>"; };
 		3E82144C08980DED00D00186 /* CAVectorUnit.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVectorUnit.h; sourceTree = "<group>"; };
 		3E82144D08980DED00D00186 /* CAVectorUnitTypes.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CAVectorUnitTypes.h; sourceTree = "<group>"; };
 		4C56E7CA08047C7700DE6468 /* SectionPatternLight.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = SectionPatternLight.tiff; sourceTree = "<group>"; };
-		4C56E7E6080482C100DE6468 /* Extractor_GraphView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Extractor_GraphView.h; path = Source/CocoaUI/Extractor_GraphView.h; sourceTree = "<group>"; };
-		4C56E7E7080482C100DE6468 /* Extractor_GraphView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = Extractor_GraphView.m; path = Source/CocoaUI/Extractor_GraphView.m; sourceTree = "<group>"; };
-		4C56E93A0804AE2C00DE6468 /* Extractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Extractor.h; path = Source/AUSource/Extractor.h; sourceTree = "<group>"; };
+		4C56E93A0804AE2C00DE6468 /* Extractor.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; name = Extractor.h; path = Source/AUSource/Extractor.h; sourceTree = "<group>"; };
 		8BA05A660720730100365D66 /* Extractor.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; name = Extractor.cpp; path = Source/AUSource/Extractor.cpp; sourceTree = "<group>"; };
 		8BA05A670720730100365D66 /* Extractor.exp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.exports; path = Extractor.exp; sourceTree = "<group>"; };
 		8BA05A690720730100365D66 /* ExtractorVersion.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = ExtractorVersion.h; path = Source/AUSource/ExtractorVersion.h; sourceTree = "<group>"; };
@@ -132,8 +132,6 @@
 		8BA05B01072074F900365D66 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		8BA4ADCE073EB19800A2709A /* Extractor_ViewFactory.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Extractor_ViewFactory.h; path = Source/CocoaUI/Extractor_ViewFactory.h; sourceTree = "<group>"; };
 		8BA4ADCF073EB19800A2709A /* Extractor_ViewFactory.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = Extractor_ViewFactory.m; path = Source/CocoaUI/Extractor_ViewFactory.m; sourceTree = "<group>"; };
-		8BA4ADD0073EB19800A2709A /* Extractor_UIView.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = Extractor_UIView.h; path = Source/CocoaUI/Extractor_UIView.h; sourceTree = "<group>"; };
-		8BA4ADD1073EB19800A2709A /* Extractor_UIView.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = Extractor_UIView.m; path = Source/CocoaUI/Extractor_UIView.m; sourceTree = "<group>"; };
 		8BA4ADF4073EB43200A2709A /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/CocoaView.nib; sourceTree = "<group>"; };
 		8BA4AE4E073EB69000A2709A /* CocoaExtractorView.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CocoaExtractorView.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BA4AE4F073EB69000A2709A /* CocoaExtractorView.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CocoaExtractorView.plist; sourceTree = "<group>"; };
@@ -317,12 +315,10 @@
 		8BA4ADCB073EB14C00A2709A /* CocoaUI */ = {
 			isa = PBXGroup;
 			children = (
+				10320FF01B74E89200FCBE29 /* Extractor_UIView.h */,
+				10320FF11B74E89200FCBE29 /* Extractor_UIView.m */,
 				8BA4ADCE073EB19800A2709A /* Extractor_ViewFactory.h */,
 				8BA4ADCF073EB19800A2709A /* Extractor_ViewFactory.m */,
-				8BA4ADD0073EB19800A2709A /* Extractor_UIView.h */,
-				8BA4ADD1073EB19800A2709A /* Extractor_UIView.m */,
-				4C56E7E6080482C100DE6468 /* Extractor_GraphView.h */,
-				4C56E7E7080482C100DE6468 /* Extractor_GraphView.m */,
 			);
 			name = CocoaUI;
 			sourceTree = "<group>";
@@ -334,9 +330,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				10320FF31B74E89200FCBE29 /* Extractor_UIView.h in Headers */,
 				8BA4AE54073EB72300A2709A /* Extractor_ViewFactory.h in Headers */,
-				8BA4AE55073EB72300A2709A /* Extractor_UIView.h in Headers */,
-				4C56E7E8080482C100DE6468 /* Extractor_GraphView.h in Headers */,
 				4C56E93C0804AE2C00DE6468 /* Extractor.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -354,6 +349,7 @@
 				8BA05ABA072073D300365D66 /* ComponentBase.h in Headers */,
 				8BA05AC7072073D300365D66 /* AUEffectBase.h in Headers */,
 				8BA05AD3072073D300365D66 /* AUBuffer.h in Headers */,
+				10320FF21B74E89200FCBE29 /* Extractor_UIView.h in Headers */,
 				8BA05AD7072073D300365D66 /* AUSilentTimeout.h in Headers */,
 				8BA05AE60720742100365D66 /* CAAudioChannelLayout.h in Headers */,
 				8BA05AE80720742100365D66 /* CAMutex.h in Headers */,
@@ -472,9 +468,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				100C40C11B5C063900EC1BF6 /* Extractor.exp in Sources */,
+				10320FF51B74E89200FCBE29 /* Extractor_UIView.m in Sources */,
 				8BA4AE56073EB73300A2709A /* Extractor_ViewFactory.m in Sources */,
-				8BA4AE57073EB73300A2709A /* Extractor_UIView.m in Sources */,
-				4C56E7E9080482C100DE6468 /* Extractor_GraphView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,6 +478,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8BA05A6B0720730100365D66 /* Extractor.cpp in Sources */,
+				10320FF41B74E89200FCBE29 /* Extractor_UIView.m in Sources */,
 				8BA05AAE072073D300365D66 /* AUBase.cpp in Sources */,
 				8BA05AB2072073D300365D66 /* AUInputElement.cpp in Sources */,
 				8BA05AB4072073D300365D66 /* AUOutputElement.cpp in Sources */,
@@ -638,7 +634,11 @@
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				OTHER_LDFLAGS = "-bundle";
+				OTHER_LDFLAGS = (
+					"-bundle",
+					"-laubio",
+					"-loscpack",
+				);
 				PRODUCT_NAME = Extractor;
 				REZ_SEARCH_PATHS = "";
 				WARNING_CFLAGS = (
@@ -663,7 +663,11 @@
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				OTHER_LDFLAGS = "-bundle";
+				OTHER_LDFLAGS = (
+					"-bundle",
+					"-laubio",
+					"-loscpack",
+				);
 				PRODUCT_NAME = Extractor;
 				REZ_SEARCH_PATHS = "";
 				WARNING_CFLAGS = (
@@ -688,7 +692,11 @@
 				INSTALL_PATH = "$(HOME)/Library/Audio/Plug-Ins/Components/";
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = "";
-				OTHER_LDFLAGS = "-bundle";
+				OTHER_LDFLAGS = (
+					"-bundle",
+					"-laubio",
+					"-loscpack",
+				);
 				PRODUCT_NAME = Extractor;
 				REZ_SEARCH_PATHS = "";
 				WARNING_CFLAGS = (
@@ -711,6 +719,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
 			};
 			name = Development;
@@ -726,6 +735,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
 			};
 			name = Deployment;
@@ -741,6 +751,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = "";
 				SDKROOT = macosx;
 			};
 			name = Default;

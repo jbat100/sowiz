@@ -56,10 +56,8 @@
 	#define kExtractorVersion 0x00010000	
 #endif
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 #define Extractor_COMP_SUBTYPE	'FILT'
 #define Extractor_COMP_MANF		'sowz'
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 #endif
 
