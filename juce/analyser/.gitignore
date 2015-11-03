@@ -1,0 +1,7 @@
+Builds/MacOSX/Build
+*.xcuserstate
+OldAnalyser
+Source/JuceLibraryCode
+.DS_Store
+*.xcbkptlist
+

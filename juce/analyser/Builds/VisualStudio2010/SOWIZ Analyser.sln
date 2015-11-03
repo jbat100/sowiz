@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{5D7FB0FE-70C7-5F96-36C6-CA8C4A64B1FD}") = "SOWIZ Analyser", "SOWIZ Analyser.vcxproj", "{1D0BD7D5-6F50-3075-086A-BA0F345991C1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1D0BD7D5-6F50-3075-086A-BA0F345991C1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1D0BD7D5-6F50-3075-086A-BA0F345991C1}.Debug|Win32.Build.0 = Debug|Win32
+		{1D0BD7D5-6F50-3075-086A-BA0F345991C1}.Release|Win32.ActiveCfg = Release|Win32
+		{1D0BD7D5-6F50-3075-086A-BA0F345991C1}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

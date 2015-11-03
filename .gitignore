@@ -1,3 +1,8 @@
 **/.idea
 **/*.pyc
 **/.DS_Store
+*.xcuserstate
+*.xcbkptlist
+juce/analyser/Builds/MacOSX/Build
+juce/analyser/Source/JuceLibraryCode
+
