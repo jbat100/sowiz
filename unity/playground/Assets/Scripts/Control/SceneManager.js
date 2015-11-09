@@ -2,11 +2,11 @@
 
 public class SceneManager extends MonoBehaviour {
 
-	var layerControllers = Array;
+	//var layerControllers = Array;
 	
 
 	public function Start () {
-		this.layerControllers = new Array();
+		//this.layerControllers = new Array();
 	}
 
 	public function Update () {

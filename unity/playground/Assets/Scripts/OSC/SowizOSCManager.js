@@ -16,7 +16,8 @@ public function Start ()
 	handler = GetComponent("Osc");
 	handler.init(udp);
 			
-	handler.SetAddressHandler("/sowiz/scene/descriptor", SceneDescriptorMessageCallback);
+	//handler.SetAddressHandler("/sowiz/scene/descriptor", SceneDescriptorMessageCallback);
+	handler.SetAllMessageHandler(DefaultMessageCallback);
 }
 
 //these fucntions are called when messages are received
@@ -27,3 +28,19 @@ public function SceneDescriptorMessageCallback(oscMessage : OscMessage) : void
 	Debug.Log("SceneDescriptorMessageCallback layer " + oscMessage.Values[0]);
 } 
 
+public function DefaultMessageCallback(oscMessage : OscMessage) : void
+{	
+	//How to access values: 
+	//oscMessage.Values[0], oscMessage.Values[1], etc
+	Debug.Log("DefaultMessageCallback received message " + oscMessage.Address + ' ' + oscMessage.Values[0]);
+
+	// var routingParameters = OscMessageRoutingParameters(oscMessage);
+	// Debug.Log("DefaultMessageCallback routing parameters : " + routingParameters.ToString() );
+} 
+
+//public function OscMessageRoutingParameters(oscMessage : OscMessage) : object
+//{
+//	var elements = oscMessage.Address.Split('/');
+//	
+//	
+//}
