@@ -1,5 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
+
+public class SowizRoutingParameters
+{
+	public string analyser;
+	public string descriptor;
+	public string group;
+
+	public SowizRoutingParameters(string _analyser, string _descriptor, string _group) {
+		analyser = _analyser;
+		descriptor = _descriptor;
+		group = _group;
+	}
+
+	public override string ToString()
+	{
+		Debug.Log("group is " + group);
+		return "SowizRoutingParameters: " + analyser + " " + descriptor + " " + group;
+	}
+
+};
 
 public class SowizOSCManager : MonoBehaviour {
 
@@ -30,5 +51,29 @@ public class SowizOSCManager : MonoBehaviour {
 
 		Debug.Log("DefaultMessageCallback received message " + message.Address + ' ' + message.Values[0]);
 
+
+		SowizRoutingParameters parameters = RoutingParametersForMessage (message);
+
+		if (parameters != null) {
+			Debug.Log("Extracted routing parameters : " + parameters.ToString() );
+		}
+
 	}
-}
+
+	SowizRoutingParameters RoutingParametersForMessage(OscMessage message) {
+	
+		string[] elements = message.Address.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+		Debug.Log("RoutingParametersForMessage elements are " + elements.ToString());
+
+		if (elements.Length < 3) {
+			Debug.Log("DefaultMessageCallback unexpected elements length");
+			return null;
+		}
+		
+		return new SowizRoutingParameters (elements [0], elements [1], elements [2]);
+	
+	}
+
+
+};
