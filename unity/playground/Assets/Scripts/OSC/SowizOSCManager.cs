@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System;
 
 class ConcurrentQueue<T> {
@@ -125,11 +124,12 @@ public class SowizOSCManager : MonoBehaviour {
 	private Osc handler;
 
 	private GameObject[] sowizObjects;
-
-	private ConcurrentQueue<SowizControlMessage> messageQueue;
+	private ConcurrentQueue<SowizControlMessage> messageQueue = new ConcurrentQueue<SowizControlMessage> ();
+	private int updateCount = 0;
 
 	// Use this for initialization
 	void Start () {
+
 		//Initializes on start up to listen for messages
 		//make sure this game object has both UDPPackIO and OSC script attached
 		UDPPacketIO udp = (UDPPacketIO)GetComponent("UDPPacketIO");
@@ -146,15 +146,17 @@ public class SowizOSCManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+		updateCount++;
+
+		// Debug.Log ("Update " + updateCount.ToString ());
+
 		while (messageQueue.Count > 0) {
 			try {
-
 				SowizControlMessage message = messageQueue.Dequeue();
-
+				//Debug.Log ("Dequeued control message " + message.ToString() );
 				ApplyMessage(message);
-
-			} catch(InvalidOperationException e) {
-			
+			} catch(InvalidOperationException) {
+				//Debug.Log ("Exception while dequeing message");
 			}
 		}
 
@@ -163,14 +165,10 @@ public class SowizOSCManager : MonoBehaviour {
 	void DefaultMessageCallback (OscMessage oscMessage) {
 
 		//Debug.Log("DefaultMessageCallback received message " + message.Address + ' ' + message.Values[0]);
-
 		SowizControlMessage sowizMessage = SowizMessageFromOscMessage (oscMessage);
-
 		if (sowizMessage != null) {
-
 			Debug.Log("Received message with routing parameters : " + sowizMessage.ToString() );
 			// work out how to call Apply from the main thread (doesn't like calling unity engine stuff on the OSC server's thread)
-
 			messageQueue.Enqueue(sowizMessage);
 		}
 
@@ -202,7 +200,7 @@ public class SowizOSCManager : MonoBehaviour {
 			return null;
 		}
 		
-		return new SowizRoutingParameters (elements [0], elements [1], elements [2], elements [3]);
+		return new SowizControlMessage (elements [0], elements [1], elements [2], elements [3], message.Values);
 	
 	}
 
