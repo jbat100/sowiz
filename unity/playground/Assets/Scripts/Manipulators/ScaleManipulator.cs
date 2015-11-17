@@ -3,18 +3,39 @@ using System.Collections;
 
 public class ScaleManipulator : SowizManipulator {
 
-	public Vector3 zeroScale = new Vector3(0.0, 0.0, 0.0);
-	public Vector3 unitScale = new Vector3(1.0, 1.0, 1.0);
+	public Vector3 zeroScale = new Vector3(0.0f, 0.0f, 0.0f);
+	public Vector3 unitScale = new Vector3(1.0f, 1.0f, 1.0f);
 
-	protected string[] descriptor = ["scale"];
+	//private Vector3 originalScale = new Vector3(1.0f, 1.0f, 1.0f);
 
-	// Use this for initialization
-	void Start () {
-		
+	void Awake() {
+		descriptors = new string[] {"scale"};	
 	}
+
+	void Start() {
+		//originalScale = transform.localScale;
+	}
+
+	public override void ApplyMessage(SowizControlMessage message) {
+
+		switch (message.descriptor) {
+
+		case "scale":
+			SetScale ((float) message.values[0]);
+			break;
+		default:
+			break;
+
+		}
+
+	}
+
+	private void SetScale(float s) {
+
+		Debug.Log ("Setting scale to " + s.ToString ());
 	
-	// Update is called once per frame
-	void Update () {
-	
+		Vector3 scaler = unitScale - zeroScale;
+
+		transform.localScale = zeroScale + (s * scaler);
 	}
 }

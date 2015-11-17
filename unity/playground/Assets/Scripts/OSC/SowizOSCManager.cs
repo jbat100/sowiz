@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-class ConcurrentQueue<T> {
+class ControlMessageQueue {
 
 	private readonly object syncLock = new object();
-	private Queue<T> queue;
+	private List<SowizControlMessage> queue;
 	
 	public int Count
 	{
@@ -19,32 +19,54 @@ class ConcurrentQueue<T> {
 		}
 	}
 	
-	public ConcurrentQueue()
+	public ControlMessageQueue()
 	{
-		this.queue = new Queue<T>();
+		this.queue = new List<SowizControlMessage>();
 	}
 	
-	public T Peek()
+	public SowizControlMessage Peek()
 	{
 		lock(syncLock)
 		{
-			return queue.Peek();
+			return queue[0];
 		}
 	}	
 	
-	public void Enqueue(T obj)
+	public void Enqueue(SowizControlMessage message)
 	{
 		lock(syncLock)
 		{
-			queue.Enqueue(obj);
+			int index = -1;
+			for (int i = 0; i < queue.Count; i++)
+			{
+				SowizControlMessage m = queue[i];
+				if (m.sameTarget(message)) 
+				{
+					index = i;
+					break;
+				}
+			}
+			if (index == -1) 
+			{
+				queue.Add(message);
+			} 
+			else 
+			{
+				queue[index] = message;
+			}
 		}
 	}
 	
-	public T Dequeue()
+	public SowizControlMessage Dequeue()
 	{
 		lock(syncLock)
 		{
-			return queue.Dequeue();
+			if (queue.Count > 0) {
+				SowizControlMessage message = queue[0];
+				queue.RemoveAt(0);
+				return message;
+			}
+			return null;
 		}
 	}
 	
@@ -56,31 +78,31 @@ class ConcurrentQueue<T> {
 		}
 	}
 	
-	public T[] CopyToArray()
+	public SowizControlMessage[] CopyToArray()
 	{
 		lock(syncLock)
 		{
 			if(queue.Count == 0)
 			{
-				return new T[0];
+				return new SowizControlMessage[0];
 			}
 			
-			T[] values = new T[queue.Count];
+			SowizControlMessage[] values = new SowizControlMessage[queue.Count];
 			queue.CopyTo(values, 0);	
 			return values;
 		}
 	}
 	
-	public static ConcurrentQueue<T> InitFromArray(IEnumerable<T> initValues)
+	public static ControlMessageQueue InitFromArray(IEnumerable<SowizControlMessage> initValues)
 	{
-		var queue = new ConcurrentQueue<T>();
+		var queue = new ControlMessageQueue();
 		
 		if(initValues == null)	
 		{
 			return queue;
 		}
 		
-		foreach(T val in initValues)
+		foreach(SowizControlMessage val in initValues)
 		{
 			queue.Enqueue(val);
 		}
@@ -114,6 +136,13 @@ public class SowizControlMessage
 		return "SowizRoutingParameters (analyser: " + analyser + ", descriptor: " + descriptor + ", group: " + group + ", feature: " + feature + ")";
 	}
 
+	public bool sameTarget(SowizControlMessage message) {
+		if (!message.descriptor.Equals (descriptor) || !message.group.Equals (group)) {
+			return false;
+		}
+		return true;
+	}
+
 };
 
 public class SowizOSCManager : MonoBehaviour {
@@ -124,7 +153,7 @@ public class SowizOSCManager : MonoBehaviour {
 	private Osc handler;
 
 	private GameObject[] sowizObjects;
-	private ConcurrentQueue<SowizControlMessage> messageQueue = new ConcurrentQueue<SowizControlMessage> ();
+	private ControlMessageQueue messageQueue = new ControlMessageQueue ();
 	private int updateCount = 0;
 
 	// Use this for initialization
@@ -200,7 +229,7 @@ public class SowizOSCManager : MonoBehaviour {
 			return null;
 		}
 		
-		return new SowizControlMessage (elements [0], elements [1], elements [2], elements [3], message.Values);
+		return new SowizControlMessage (elements [0], elements [2], elements [1], elements [3], message.Values);
 	
 	}
 
