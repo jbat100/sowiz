@@ -4,6 +4,8 @@ using System.Linq;
 
 public class SowizManipulator : MonoBehaviour {
 
+	public GameObject target;
+
 	public string[] groups;
 
 	protected string[] descriptors = new string[] {};

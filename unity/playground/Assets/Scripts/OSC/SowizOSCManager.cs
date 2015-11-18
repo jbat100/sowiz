@@ -179,12 +179,16 @@ public class SowizOSCManager : MonoBehaviour {
 
 		// Debug.Log ("Update " + updateCount.ToString ());
 
-		while (messageQueue.Count > 0) {
-			try {
+		while (messageQueue.Count > 0) 
+		{
+			try 
+			{
 				SowizControlMessage message = messageQueue.Dequeue();
 				//Debug.Log ("Dequeued control message " + message.ToString() );
 				ApplyMessage(message);
-			} catch(InvalidOperationException) {
+			} 
+			catch(InvalidOperationException) 
+			{
 				//Debug.Log ("Exception while dequeing message");
 			}
 		}
@@ -195,7 +199,8 @@ public class SowizOSCManager : MonoBehaviour {
 
 		//Debug.Log("DefaultMessageCallback received message " + message.Address + ' ' + message.Values[0]);
 		SowizControlMessage sowizMessage = SowizMessageFromOscMessage (oscMessage);
-		if (sowizMessage != null) {
+		if (sowizMessage != null) 
+		{
 			Debug.Log("Received message with routing parameters : " + sowizMessage.ToString() );
 			// work out how to call Apply from the main thread (doesn't like calling unity engine stuff on the OSC server's thread)
 			messageQueue.Enqueue(sowizMessage);
@@ -205,12 +210,14 @@ public class SowizOSCManager : MonoBehaviour {
 
 	void ApplyMessage(SowizControlMessage message) {
 
-		foreach (GameObject gameObject in sowizObjects) {
-			
+		foreach (GameObject gameObject in sowizObjects) 
+		{
 			SowizManipulator[] manipulators = gameObject.GetComponents<SowizManipulator>();
-			
-			foreach (SowizManipulator manipulator in manipulators) {
-				if ( System.Array.IndexOf(manipulator.groups, message.group) != -1) {
+			//Debug.Log("Applying message to " + manipulators.Length.ToString() + " manipulators" );
+			foreach (SowizManipulator manipulator in manipulators) 
+			{
+				if ( System.Array.IndexOf(manipulator.groups, message.group) != -1) 
+				{
 					manipulator.ApplyMessage(message);
 				}
 			}
@@ -224,7 +231,8 @@ public class SowizOSCManager : MonoBehaviour {
 
 		//Debug.Log("RoutingParametersForMessage elements are " + elements.ToString());
 
-		if (elements.Length < 4) {
+		if (elements.Length < 4) 
+		{
 			Debug.Log("DefaultMessageCallback unexpected elements length");
 			return null;
 		}
