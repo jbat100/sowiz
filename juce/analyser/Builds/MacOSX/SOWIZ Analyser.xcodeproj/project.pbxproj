@@ -3424,7 +3424,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					/Developer/SDKs/VST3,
+					/Developer/VST3,
 					../../JuceLibraryCode,
 					../../JuceLibraryCode/modules,
 					/usr/local/include,
@@ -3491,7 +3491,7 @@
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GENERATE_PKGINFO_FILE = YES;
 				HEADER_SEARCH_PATHS = (
-					/Developer/SDKs/VST3,
+					/Developer/VST3,
 					../../JuceLibraryCode,
 					../../JuceLibraryCode/modules,
 					/usr/local/include,
