@@ -195,6 +195,12 @@ public class SowizOSCManager : MonoBehaviour {
 
 	}
 
+	void OnApplicationQuit()
+	{
+		UDPPacketIO udp = (UDPPacketIO)GetComponent("UDPPacketIO");
+		udp.Close ();
+	}
+
 	void DefaultMessageCallback (OscMessage oscMessage) {
 
 		//Debug.Log("DefaultMessageCallback received message " + message.Address + ' ' + message.Values[0]);
