@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ColorHueManipulator : SowizManipulator {
+public class ColorHueManipulator : ColorManipulator {
 
-	public int zeroHue = 0;
-	public int unitHue = 128;
+	public float zeroHue = 0.0f;
+	public float unitHue = 1.0f;
 	
 	void Awake() {
 		descriptors = new string[] {"magnitude"};	
@@ -25,14 +25,23 @@ public class ColorHueManipulator : SowizManipulator {
 	}
 	
 	private void SetMagnitude(float m) {
-		
-		Debug.Log ("Setting magnitude to " + m.ToString ());
 
-		Renderer renderer = target.GetComponent<Renderer> ();
+		Debug.Log ("ColorHueManipulator Setting magnitude to " + m.ToString ());
 
-		Color currentColor = renderer.material.GetColor ("_MainTint");
+		Color color = GetColor ();
 
-		Debug.Log ("Current color is " + currentColor.ToString ());
+		HSBColor hsbColor = HSBColor.FromColor (color);
+
+		HSBColor newColor = hsbColor;
+
+		newColor.h = (m * (unitHue - zeroHue)) + zeroHue;
+
+		color = newColor.ToColor ();
+
+		Debug.Log ("Setting magnitude to " + m.ToString () + " color is " + color.ToString() + ", old hsb " + hsbColor.ToString() + ", new hsb" + newColor.ToString() );
+
+		SetColor (color);
+
 	}
 
 }
