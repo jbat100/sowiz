@@ -31,7 +31,7 @@ public class SpinManipulator : SowizManipulator {
 	}
 	
 	private void SetMagnitude(float m) {
-		Debug.Log ("Setting magnitude to " + m.ToString ());
+		//Debug.Log ("Setting magnitude to " + m.ToString ());
 		magnitude = m;
 	}
 }

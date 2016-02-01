@@ -26,7 +26,7 @@ public class RotationManipulator : SowizManipulator {
 	
 	private void SetMagnitude(float m) {
 		
-		Debug.Log ("Setting magnitude to " + m.ToString ());
+		//Debug.Log ("Setting magnitude to " + m.ToString ());
 		
 		target.transform.rotation = Quaternion.AngleAxis ( scale * m, axis );
 	}

@@ -14,8 +14,8 @@ public class MouseTest : MonoBehaviour {
 	
 		//float yRot = CrossPlatformInputManager.GetAxis("Mouse X") ;
 		//float xRot = CrossPlatformInputManager.GetAxis("Mouse Y") ;
-		Debug.Log ("MouseTest Input " + Input.GetAxis("Mouse X").ToString() + " " + Input.GetAxis("Mouse Y").ToString() );
-		Debug.Log ("MouseTest CrossPlatformInput " + CrossPlatformInputManager.GetAxis("Mouse X").ToString() + " " + CrossPlatformInputManager.GetAxis("Mouse Y").ToString() );
+		//Debug.Log ("MouseTest Input " + Input.GetAxis("Mouse X").ToString() + " " + Input.GetAxis("Mouse Y").ToString() );
+		//Debug.Log ("MouseTest CrossPlatformInput " + CrossPlatformInputManager.GetAxis("Mouse X").ToString() + " " + CrossPlatformInputManager.GetAxis("Mouse Y").ToString() );
 
 	}
 }
