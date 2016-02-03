@@ -7,40 +7,31 @@ public class ColorHueManipulator : ColorManipulator {
 	public float unitHue = 1.0f;
 	
 	void Awake() {
-		descriptors = new string[] {"magnitude"};	
+		descriptors = new string[] {"hue"};	
 	}
 	
-	public override void ApplyMessage(SowizControlMessage message) {
+	public override void ApplyMessageToTarget(GameObject target, SowizControlMessage message) {
 		
 		switch (message.descriptor) {
-			
-		case "magnitude":
-			SetMagnitude ((float) message.values[0]);
+		case "hue":
+			SetHue (target, (float) message.values[0]);
 			break;
 		default:
 			break;
-			
 		}
 		
 	}
 	
-	private void SetMagnitude(float m) {
+	private void SetHue(GameObject target, float m) {
 
 		//Debug.Log ("ColorHueManipulator Setting magnitude to " + m.ToString ());
-
-		Color color = GetColor ();
-
+		Color color = GetTargetColor (target);
 		HSBColor hsbColor = HSBColor.FromColor (color);
-
 		HSBColor newColor = hsbColor;
-
 		newColor.h = (m * (unitHue - zeroHue)) + zeroHue;
-
 		color = newColor.ToColor ();
-
 		//Debug.Log ("Setting magnitude to " + m.ToString () + " color is " + color.ToString() + ", old hsb " + hsbColor.ToString() + ", new hsb" + newColor.ToString() );
-
-		SetColor (color);
+		SetTargetColor (target, color);
 
 	}
 

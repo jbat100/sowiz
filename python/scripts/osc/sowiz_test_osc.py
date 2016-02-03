@@ -26,7 +26,7 @@ def main():
 	try:
 		sleep_interval = float(args.interval) / 1000.0
 		current_value = args.lower_limit
-		osc_path = '/analyser1/' + args.group + '/' + args.descriptor + '/something'
+		osc_path = '/' + args.group + '/' + args.descriptor
 		while True:
 			current_value += args.step
 			if current_value > args.upper_limit:

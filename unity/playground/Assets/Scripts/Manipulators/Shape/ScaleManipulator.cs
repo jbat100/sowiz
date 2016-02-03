@@ -9,33 +9,26 @@ public class ScaleManipulator : SowizManipulator {
 	//private Vector3 originalScale = new Vector3(1.0f, 1.0f, 1.0f);
 
 	void Awake() {
-		descriptors = new string[] {"magnitude"};	
+		descriptors = new string[] {"scale"};	
 	}
 
 	void Start() {
 		//originalScale = transform.localScale;
 	}
 
-	public override void ApplyMessage(SowizControlMessage message) {
-
+	public override void ApplyMessageToTarget(GameObject target, SowizControlMessage message) {
 		switch (message.descriptor) {
-
-		case "magnitude":
-			SetMagnitude ((float) message.values[0]);
+		case "scale":
+			SetScale (target, (float) message.values[0]);
 			break;
 		default:
 			break;
-
 		}
-
 	}
 
-	private void SetMagnitude(float m) {
-
+	private void SetScale(GameObject target, float m) {
 		Debug.Log ("Setting magnitude to " + m.ToString ());
-	
 		Vector3 scaler = unitScale - zeroScale;
-
 		target.transform.localScale = zeroScale + (m * scaler);
 	}
 }

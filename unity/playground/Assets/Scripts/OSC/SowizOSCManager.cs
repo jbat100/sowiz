@@ -115,25 +115,21 @@ class ControlMessageQueue {
 
 public class SowizControlMessage
 {
-	public string analyser;
 	public string descriptor;
 	public string group;
-	public string feature;
 
 	public ArrayList values;
 
-	public SowizControlMessage(string _analyser, string _descriptor, string _group, string _feature, ArrayList _values) {
-		analyser = _analyser;
+	public SowizControlMessage(string _group, string _descriptor, ArrayList _values) {
 		descriptor = _descriptor;
 		group = _group;
-		feature = _feature;
 		values = _values;
 	}
 
 	public override string ToString()
 	{
 		//Debug.Log("group is " + group);
-		return "SowizRoutingParameters (analyser: " + analyser + ", descriptor: " + descriptor + ", group: " + group + ", feature: " + feature + ")";
+		return "SowizRoutingParameters (descriptor: " + descriptor + ", group: " + group + ")";
 	}
 
 	public bool sameTarget(SowizControlMessage message) {
@@ -237,13 +233,13 @@ public class SowizOSCManager : MonoBehaviour {
 
 		//Debug.Log("RoutingParametersForMessage elements are " + elements.ToString());
 
-		if (elements.Length < 4) 
+		if (elements.Length < 2) 
 		{
 			Debug.Log("DefaultMessageCallback unexpected elements length");
 			return null;
 		}
 		
-		return new SowizControlMessage (elements [0], elements [2], elements [1], elements [3], message.Values);
+		return new SowizControlMessage (elements [0], elements [1], message.Values);
 	
 	}
 

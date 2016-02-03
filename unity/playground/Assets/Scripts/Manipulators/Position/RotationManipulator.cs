@@ -7,27 +7,21 @@ public class RotationManipulator : SowizManipulator {
 	public float scale = 180.0f;
 
 	void Awake() {
-		descriptors = new string[] {"magnitude"};	
+		descriptors = new string[] {"rotation"};	
 	}
 
-	public override void ApplyMessage(SowizControlMessage message) {
-		
+	public override void ApplyMessageToTarget(GameObject target, SowizControlMessage message) {
 		switch (message.descriptor) {
-			
-		case "magnitude":
-			SetMagnitude ((float) message.values[0]);
+		case "rotation":
+			SetRotation (target, (float) message.values[0]);
 			break;
 		default:
 			break;
-			
 		}
-		
 	}
 	
-	private void SetMagnitude(float m) {
-		
+	private void SetRotation(GameObject target, float m) {
 		//Debug.Log ("Setting magnitude to " + m.ToString ());
-		
 		target.transform.rotation = Quaternion.AngleAxis ( scale * m, axis );
 	}
 }
