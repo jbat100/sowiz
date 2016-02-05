@@ -179,6 +179,7 @@ using System;
 
       ReadThread = new Thread(Read);
       ReaderRunning = true;
+	  ReadThread.Priority = System.Threading.ThreadPriority.BelowNormal;
       ReadThread.IsBackground = true;
       ReadThread.Start();		
 	}
