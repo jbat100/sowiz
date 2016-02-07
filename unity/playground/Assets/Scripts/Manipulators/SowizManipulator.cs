@@ -2,6 +2,22 @@
 using System.Collections;
 using System.Linq;
 
+[System.Serializable]
+public class SowizFloatMapping : System.Object
+{
+		public float Zero = 0.0f;
+		public float Unit = 1.0f;
+
+		public SowizFloatMapping(float _zero, float _unit) {
+				Zero = _zero;
+				Unit = _unit;
+		}
+				
+		public float Map(float val) {
+				return (val * (Unit - Zero)) + Zero;
+		}
+}
+
 public class SowizManipulator : MonoBehaviour {
 
 	public GameObject[] targets;

@@ -1,22 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Reflection;
 
 public class ShurikenManipulator : SowizManipulator {
 
-		public float zeroHue = 0.0f;
-		public float unitHue = 1.0f;
-
-		public float zeroSaturation = 0.0f;
-		public float unitSaturation = 1.0f;
-
-		public float zeroBrightness = 0.0f;
-		public float unitBrightness = 1.0f;
-
-		public float zeroScale = 0.1f;
-		public float unitScale = 1.9f;
-
-		public float zeroVelocity = 1.0f;
-		public float unitVelocity = 5.0f;
+		public SowizFloatMapping hueMapping = new SowizFloatMapping(0f, 1f);
+		public SowizFloatMapping saturationMapping = new SowizFloatMapping(0f, 1f);
+		public SowizFloatMapping brightnessMapping = new SowizFloatMapping(0f, 1f);
+		public SowizFloatMapping scaleMapping = new SowizFloatMapping(0.1f, 1.9f);
+		public SowizFloatMapping velocityMapping = new SowizFloatMapping(0.1f, 5.0f);
 
 		/*
 	 * 
@@ -31,36 +23,18 @@ public class ShurikenManipulator : SowizManipulator {
 				//descriptors = new string[] {"hue"};	
 		}
 
-		// Use this for initialization
-		void Start () {
-				//particleSystem = target.GetComponent<ParticleSystem>();
-		}
-
-		// Update is called once per frame
-		void Update () {
-
-		}
+		// TODO: consider using an automatic call mechanism as this is tedious
+		// http://stackoverflow.com/questions/540066/calling-a-function-from-a-string-in-c-sharp
 
 		public override void ApplyMessageToTarget(GameObject target, SowizControlMessage message) {
-				switch (message.descriptor) {
-				case "scale":
-						SetScale (target, (float) message.values[0]);
-						break;
-				case "velocity":
-						SetVelocity (target, (float) message.values[0]);
-						break;
-				case "hue":
-						SetHue (target, (float) message.values[0]);
-						break;
-				case "saturation":
-						SetSaturation (target, (float) message.values[0]);
-						break;
-				case "brightness":
-						SetBrightness (target, (float) message.values[0]);
-						break;
-				default:
-						break;	
+				if (message.descriptor == null || message.descriptor.Length < 1) {
+						return;
 				}
+				string methodStr = "Set" + char.ToUpper(message.descriptor[0]) + message.descriptor.Substring(1);
+				Debug.Log ( this.GetType().Name + " calling " + methodStr );
+				MethodInfo theMethod = this.GetType().GetMethod(methodStr);
+				object [] parameters = new object [] {target, message.values};
+				theMethod.Invoke(this, parameters);
 		}
 
 		public Color GetTargetColor(GameObject target) {
@@ -78,36 +52,38 @@ public class ShurikenManipulator : SowizManipulator {
 				return target.GetComponent<ParticleSystem>();
 		}
 
-		private void SetScale(GameObject target, float m) {
-				Debug.Log ("ShurikenManipulator setting scale to " + m.ToString ());
+		public void SetScale(GameObject target, ArrayList values) {
 				ParticleSystem particleSystem = GetTargetParticleSystem(target);
-				particleSystem.startSize = (m * (unitScale - zeroScale)) + zeroScale;
+				float val = (float)values[0];
+				particleSystem.startSize = scaleMapping.Map(val);
 		}
 
-		private void SetVelocity(GameObject target, float m) {
-				Debug.Log ("ShurikenManipulator setting velocity to " + m.ToString ());
+		public void SetVelocity(GameObject target, ArrayList values) {
 				ParticleSystem particleSystem = GetTargetParticleSystem(target);
-				particleSystem.startSpeed = (m * (unitVelocity - zeroVelocity)) + zeroVelocity;
+				float val = (float)values[0];
+				particleSystem.startSpeed = velocityMapping.Map(val);
 		}
 
-		private void SetHue(GameObject target, float m) {
-				Debug.Log ("ShurikenManipulator setting hue to " + m.ToString ());
+		public void SetHue(GameObject target, ArrayList values) {
+				
 				HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
-				hsbColor.h = (m * (unitHue - zeroHue)) + zeroHue;
+				float val = (float)values[0];
+				// Debug.Log ( this.GetType().Name + " in SetHue with values " + values.ToString() + " val : " + val.ToString());
+				hsbColor.h = hueMapping.Map(val);
 				SetTargetColor(target, hsbColor.ToColor ());
 		}
 
-		private void SetSaturation(GameObject target, float m) {
-				Debug.Log ("ShurikenManipulator setting saturation to " + m.ToString ());
+		public void SetSaturation(GameObject target, ArrayList values) {
 				HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
-				hsbColor.s = (m * (unitSaturation - zeroSaturation)) + zeroSaturation;
+				float val = (float)values[0];
+				hsbColor.s = saturationMapping.Map(val);
 				SetTargetColor(target, hsbColor.ToColor ());
 		}
 
-		private void SetBrightness(GameObject target, float m) {
-				Debug.Log ("ShurikenManipulator setting brightness to " + m.ToString ());
+		public void SetBrightness(GameObject target, ArrayList values) {
 				HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
-				hsbColor.b = (m * (unitBrightness - zeroBrightness)) + zeroBrightness;
+				float val = (float)values[0];
+				hsbColor.b = brightnessMapping.Map(val);
 				SetTargetColor(target, hsbColor.ToColor ());
 		}
 }
