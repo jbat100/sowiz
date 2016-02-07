@@ -32,6 +32,7 @@ public class ShurikenEmissionManipulator : ShurikenManipulator {
 				// loop over the particles to alter their properties, for example based on lifetime
 				// http://docs.unity3d.com/ScriptReference/ParticleSystem.Particle.html
 
+
 		}
 
 		public void SetRate(GameObject target, float r) {
