@@ -3,14 +3,6 @@ using System.Collections;
 
 public class ShurikenColorHSBManipulator : ShurikenColorManipulator {
 
-		public float zeroHue = 0.0f;
-		public float unitHue = 1.0f;
-
-		public float zeroSaturation = 0.0f;
-		public float unitSaturation = 1.0f;
-
-		public float zeroBrightness = 0.0f;
-		public float unitBrightness = 1.0f;
 
 		void Awake() {
 				descriptors = new string[] {"hue", "saturation", "brightness"};	
