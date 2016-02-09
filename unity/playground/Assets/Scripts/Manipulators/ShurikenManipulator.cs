@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Reflection;
 
 public class ShurikenManipulator : SowizManipulator {
 
@@ -21,20 +20,6 @@ public class ShurikenManipulator : SowizManipulator {
 		void Awake() {
 				descriptors = new string[] {"scale", "velocity", "hue", "saturation", "brightness"};	
 				//descriptors = new string[] {"hue"};	
-		}
-
-		// TODO: consider using an automatic call mechanism as this is tedious
-		// http://stackoverflow.com/questions/540066/calling-a-function-from-a-string-in-c-sharp
-
-		public override void ApplyMessageToTarget(GameObject target, SowizControlMessage message) {
-				if (message.descriptor == null || message.descriptor.Length < 1) {
-						return;
-				}
-				string methodStr = "Set" + char.ToUpper(message.descriptor[0]) + message.descriptor.Substring(1);
-				Debug.Log ( this.GetType().Name + " calling " + methodStr );
-				MethodInfo theMethod = this.GetType().GetMethod(methodStr);
-				object [] parameters = new object [] {target, message.values};
-				theMethod.Invoke(this, parameters);
 		}
 
 		public Color GetTargetColor(GameObject target) {
@@ -86,4 +71,20 @@ public class ShurikenManipulator : SowizManipulator {
 				hsbColor.b = brightnessMapping.Map(val);
 				SetTargetColor(target, hsbColor.ToColor ());
 		}
+
+	public void SetRate(GameObject target, float r) {
+
+		// use ParticleSystem.Emit directly in order to override colors
+		// http://docs.unity3d.com/ScriptReference/ParticleSystem.Emit.html
+		// http://docs.unity3d.com/ScriptReference/ParticleSystem.EmitParams.html
+
+		// loop over the particles to alter their properties, for example based on lifetime
+		// http://docs.unity3d.com/ScriptReference/ParticleSystem.Particle.html
+
+
+		//ParticleSystem particleSystem = GetTargetParticleSystem(target);
+		//var emission = particleSystem.emission;
+		//emission.rate = new ParticleSystem.MinMaxCurve( (r * (unitRate - zeroRate)) + zeroRate );
+
+	}
 }
