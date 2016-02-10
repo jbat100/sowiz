@@ -30,7 +30,7 @@ public class SowizVector3Mapping : System.Object
 		Unit = _unit;
 	}
 
-	public float Map(float val) {
+	public Vector3 Map(float val) {
 		return ((1f - val) * Zero) + (val * Unit);
 	}
 }
@@ -41,7 +41,7 @@ public class SowizRotator : System.Object
 	public Vector3 Axis = new Vector3(1f, 0f, 0f);
 	public float Scale = 180f;
 
-	public SowizRotator(Vector3 _axis, Vector3 _scale) {
+	public SowizRotator(Vector3 _axis, float _scale) {
 		Axis = _axis;
 		Scale = _scale;
 	}
@@ -58,12 +58,12 @@ public class SowizSpinner : System.Object
 	public float Scale = 180f;
 	public float Spin = 0f;
 
-	public SowizSpinner(Vector3 _axis, Vector3 _scale) {
+	public SowizSpinner(Vector3 _axis, float _scale) {
 		Axis = _axis;
 		Scale = _scale;
 	}
 
-	public Quaternion GetRotation(float val) {
+	public Quaternion GetRotation() {
 		return Quaternion.AngleAxis ((float)(Scale * Spin * Time.deltaTime * 60f), Axis);
 	}
 }
@@ -102,8 +102,11 @@ public class SowizManipulator : MonoBehaviour {
 		string methodStr = "Set" + char.ToUpper(message.descriptor[0]) + message.descriptor.Substring(1);
 		Debug.Log ( this.GetType().Name + " calling " + methodStr );
 		MethodInfo theMethod = this.GetType().GetMethod(methodStr);
-		object [] parameters = new object [] {target, message.values};
-		theMethod.Invoke(this, parameters);
+
+		if (theMethod != null) {
+			object [] parameters = new object [] {target, message.values};
+			theMethod.Invoke(this, parameters);
+		}
 	}
 		
 }

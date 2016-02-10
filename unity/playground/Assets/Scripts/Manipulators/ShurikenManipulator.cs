@@ -37,40 +37,33 @@ public class ShurikenManipulator : SowizManipulator {
 				return target.GetComponent<ParticleSystem>();
 		}
 
-		public void SetScale(GameObject target, ArrayList values) {
-				ParticleSystem particleSystem = GetTargetParticleSystem(target);
-				float val = (float)values[0];
-				particleSystem.startSize = scaleMapping.Map(val);
-		}
+	public void SetScale(GameObject target, ArrayList values) {
+		ParticleSystem particleSystem = GetTargetParticleSystem(target);
+		particleSystem.startSize = scaleMapping.Map((float)(values[0]));
+	}
 
-		public void SetVelocity(GameObject target, ArrayList values) {
-				ParticleSystem particleSystem = GetTargetParticleSystem(target);
-				float val = (float)values[0];
-				particleSystem.startSpeed = velocityMapping.Map(val);
-		}
+	public void SetVelocity(GameObject target, ArrayList values) {
+		ParticleSystem particleSystem = GetTargetParticleSystem(target);
+		particleSystem.startSpeed = velocityMapping.Map((float)(values[0]));
+	}
 
-		public void SetHue(GameObject target, ArrayList values) {
-				
-				HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
-				float val = (float)values[0];
-				// Debug.Log ( this.GetType().Name + " in SetHue with values " + values.ToString() + " val : " + val.ToString());
-				hsbColor.h = hueMapping.Map(val);
-				SetTargetColor(target, hsbColor.ToColor ());
-		}
+	public void SetHue(GameObject target, ArrayList values) {
+		HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
+		hsbColor.h = hueMapping.Map((float)(values[0]));
+		SetTargetColor(target, hsbColor.ToColor ());
+	}
 
-		public void SetSaturation(GameObject target, ArrayList values) {
-				HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
-				float val = (float)values[0];
-				hsbColor.s = saturationMapping.Map(val);
-				SetTargetColor(target, hsbColor.ToColor ());
-		}
+	public void SetSaturation(GameObject target, ArrayList values) {
+		HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
+		hsbColor.s = saturationMapping.Map((float)(values[0]));
+		SetTargetColor(target, hsbColor.ToColor ());
+	}
 
-		public void SetBrightness(GameObject target, ArrayList values) {
-				HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
-				float val = (float)values[0];
-				hsbColor.b = brightnessMapping.Map(val);
-				SetTargetColor(target, hsbColor.ToColor ());
-		}
+	public void SetBrightness(GameObject target, ArrayList values) {
+		HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));
+		hsbColor.b = brightnessMapping.Map((float)(values[0]));
+		SetTargetColor(target, hsbColor.ToColor ());
+	}
 
 	public void SetRate(GameObject target, float r) {
 

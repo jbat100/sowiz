@@ -4,9 +4,9 @@ using System.Collections;
 
 public class TransformManipulator : SowizManipulator {
 
-	public SowizVector3Mapping scaleMapping = new SowizVector3Mapping(new Vector3(0f, 0f, 0f), new Vector3(0f, 0f, 1f));
-	public SowizRotator Rotator = SowizRotator(new Vector3(1f, 0f, 0f), 180f);
-	public SowizSpinner Spinner = SowizSpinner(new Vector3(1f, 0f, 0f), 180f);
+	public SowizVector3Mapping scaleMapping = new SowizVector3Mapping(new Vector3(0.5f, 1f, 1f), new Vector3(5f, 1f, 1f));
+	public SowizRotator Rotator = new SowizRotator(new Vector3(1f, 0f, 0f), 180f);
+	public SowizSpinner Spinner = new SowizSpinner(new Vector3(1f, 0f, 0f), 180f);
 
 	void Awake() {
 		descriptors = new string[] {"scale", "rotation", "spin"};	
@@ -20,15 +20,18 @@ public class TransformManipulator : SowizManipulator {
 
 	// TODO: find a better way to handle dispatch when per target application is not needed, 
 	// maybe have an dict of delegate methods (this would also be faster...) 
-	private void SetSpin(GameObject target, float m) {
-		Spinner.Spin = m;
+
+	public void SetSpin(GameObject target, ArrayList values) {
+		Spinner.Spin = (float)(values[0]);
 	}
 		
-	private void SetScale(GameObject target, float m) {
-		target.transform.localScale = scaleMapping.Map(m);
+	public void SetScale(GameObject target, ArrayList values) {
+		Vector3 newScale = scaleMapping.Map((float)(values[0]));
+		Debug.Log ("TransformManipulator setting scale " + newScale.ToString() );
+		target.transform.localScale = newScale;
 	}
 
-	public void SetRotation(GameObject target, float m) {
-		target.transform.rotation = Rotator.GetRotation (m);
+	public void SetRotation(GameObject target, ArrayList values) {
+		target.transform.rotation = Rotator.GetRotation ((float)(values[0]));
 	}
 }
