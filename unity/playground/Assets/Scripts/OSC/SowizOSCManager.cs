@@ -259,6 +259,9 @@ public class SowizOSCManager : MonoBehaviour {
 
 		Debug.Log("Found " + manipulators.Length + " manipulators");
 
+
+		// not sure if InvokeRepeating does what we want, might need to create a new thread
+		// http://stackoverflow.com/questions/12997658/c-sharp-how-to-make-periodic-events-in-a-class
 		InvokeRepeating("ReadBuffer", period, period);
 
 	}
