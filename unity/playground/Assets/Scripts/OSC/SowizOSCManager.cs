@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System;
 
 public class SowizControlMessage
@@ -105,21 +106,28 @@ public class SowizControlMessageQueue {
 		}
 	}
 
-	public void TransferFrom(SowizControlMessageQueue otherQueue)
-	{
+	public void EnqueueList(List<SowizControlMessage> messages) {
+
 		lock(syncLock)
 		{
-			List<SowizControlMessage> transfered = otherQueue.DequeueAll();
-
-			if (transfered.Count > 0) {
-				Debug.Log("Transferring " + transfered.Count + " control messages");
+			if (messages.Count > 0) {
+				Debug.Log("Enqueuing " + messages.Count + " control messages");
 			}
 
-			foreach(SowizControlMessage message in transfered)
+			foreach(SowizControlMessage message in messages)
 			{
 				this.UnprotectedEnqueue(message);
 			}
 		}
+
+	}
+
+	public void TransferFrom(SowizControlMessageQueue otherQueue)
+	{
+		List<SowizControlMessage> transfered = otherQueue.DequeueAll();
+
+		this.EnqueueList(transfered);
+
 	}
 
 	public SowizControlMessage Dequeue()
@@ -189,25 +197,35 @@ public class SowizControlMessageQueue {
 
 public class SowizControlMessageBuffer {
 
-	public Osc handler;
+	private Osc handler;
 
 	private SowizControlMessageQueue bufferQueue;
+	private SowizControlMessageQueue targetQueue;
 
-	public SowizControlMessageBuffer(Osc _handler) {
+	private Timer timer;
+	private int period;
+
+	public SowizControlMessageBuffer(Osc _handler, SowizControlMessageQueue _targetQueue, int _period) {
 		
 		bufferQueue = new SowizControlMessageQueue ();
+		targetQueue = _targetQueue;
 		handler = _handler;
 		handler.SetAllMessageHandler(MessageCallback);
+		period = _period;
+
+		timer = new Timer(TransferCallback, null, period, period);
+	}
+
+	public void Stop() {
+
+		// stop it permanently with no further chance to use the same instance
+		timer.Dispose();
+
+		//timer.Change(Timeout.Infinite , Timeout.Infinite);
 
 	}
 
-	public void TransferTo(SowizControlMessageQueue targetQueue) {
-		
-		targetQueue.TransferFrom(bufferQueue);
-
-	}
-
-	void MessageCallback (OscMessage oscMessage) {
+	public void MessageCallback (OscMessage oscMessage) {
 		
 		//Debug.Log("DefaultMessageCallback received message " + message.Address + ' ' + message.Values[0]);
 		SowizControlMessage sowizMessage = SowizControlMessage.FromOscMessage (oscMessage);
@@ -216,6 +234,12 @@ public class SowizControlMessageBuffer {
 			Debug.Log("Received message : " + sowizMessage.ToString() );
 			bufferQueue.Enqueue(sowizMessage);
 		}
+
+	}
+
+	public void TransferCallback(object state) {
+
+		targetQueue.TransferFrom(bufferQueue);
 
 	}
 
@@ -240,29 +264,24 @@ public class SowizOSCManager : MonoBehaviour {
 
 		//Initializes on start up to listen for messages
 		//make sure this game object has both UDPPackIO and OSC script attached
+
 		UDPPacketIO udp = (UDPPacketIO)GetComponent("UDPPacketIO");
 		udp.init(remoteIP, remotePort, localPort);
 		handler = (Osc)GetComponent("Osc");
 		handler.init(udp);
 
 		messageQueue = new SowizControlMessageQueue ();
-		messageBuffer = new SowizControlMessageBuffer(handler);
+		messageBuffer = new SowizControlMessageBuffer(handler, messageQueue, 17);
 
 		// get all game objects with maniulator components
-		//manipulators = gameObject.GetComponents<SowizManipulator>();
-
-		//HingeJoint[] hinges = FindObjectsOfType(typeof(HingeJoint)) as HingeJoint[];
 
 		manipulators = FindObjectsOfType(typeof(SowizManipulator)) as SowizManipulator[];
 
-		//manipulators = (SowizManipulator[])FindObjectOfType<SowizManipulator>();
-
 		Debug.Log("Found " + manipulators.Length + " manipulators");
-
 
 		// not sure if InvokeRepeating does what we want, might need to create a new thread
 		// http://stackoverflow.com/questions/12997658/c-sharp-how-to-make-periodic-events-in-a-class
-		InvokeRepeating("ReadBuffer", period, period);
+		// InvokeRepeating("ReadBuffer", period, period);
 
 	}
 
@@ -279,25 +298,19 @@ public class SowizOSCManager : MonoBehaviour {
 
 	}
 
-	void ReadBuffer() {
-		
-		messageBuffer.TransferTo(messageQueue);
-
-	}
-
 	void OnApplicationQuit() {
 		
 		UDPPacketIO udp = (UDPPacketIO)GetComponent("UDPPacketIO");
 		udp.Close ();
+
+		messageBuffer.Stop();
 
 	}
 
 	void ApplyMessage(SowizControlMessage message) {
 		
 		foreach (SowizManipulator manipulator in manipulators) {
-			if ( System.Array.IndexOf(manipulator.groups, message.group) != -1) {
-				manipulator.ApplyMessage(message);
-			}
+			manipulator.ApplyMessage(message);
 		}
 
 	}
