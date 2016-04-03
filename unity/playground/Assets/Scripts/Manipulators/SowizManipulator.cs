@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Reflection;
+using System.Collections.Generic;
 using System.Linq;
+using System;
 
 [System.Serializable]
 public class SowizFloatMapping : System.Object
@@ -74,38 +75,46 @@ public class SowizManipulator : MonoBehaviour {
 
 	public string[] groups;
 
-	protected string[] descriptors = new string[] {};
+	protected delegate void SowizMainControlDelegate(ArrayList values);
+	protected delegate void SowizTargetControlDelegate(GameObject target, ArrayList values);
+
+	protected Dictionary<string, SowizMainControlDelegate> mainControlDelegates;
+	protected Dictionary<string, SowizTargetControlDelegate> targetControlDelegates;
 
 	// Use this for initialization
-	void Start () {	}
-	
-	// Update is called once per frame
-	void Update () {
+	void Awake () {	
+		mainControlDelegates = new Dictionary<string, SowizMainControlDelegate>();
+		targetControlDelegates = new Dictionary<string, SowizTargetControlDelegate>();
+	}
+
+	void Start() {
 	
 	}
 
 	public virtual void ApplyMessage(SowizControlMessage message) {
+
+		// should we apply messages for this group?
+		if (Array.IndexOf(groups, message.group) == -1) {
+			return;
+		} 
+
 		var result = string.Join(",", message.values.ToArray().Select(o => o.ToString()).ToArray());
 		Debug.Log ("Applying " + message.ToString() + " with values : " + result );
-		foreach (GameObject target in targets) {
-			ApplyMessageToTarget (target, message);
+
+		SowizMainControlDelegate mainControlDelegate = null;
+		if (mainControlDelegates.TryGetValue(message.descriptor, out mainControlDelegate))
+		{
+			// call the main delegate once
+			mainControlDelegate(message.values);
 		}
-	}
 
-	// TODO: consider using an automatic call mechanism as this is tedious
-	// http://stackoverflow.com/questions/540066/calling-a-function-from-a-string-in-c-sharp
-
-	public void ApplyMessageToTarget(GameObject target, SowizControlMessage message) {
-		if (message.descriptor == null || message.descriptor.Length < 1) {
-			return;
-		}
-		string methodStr = "Set" + char.ToUpper(message.descriptor[0]) + message.descriptor.Substring(1);
-		Debug.Log ( this.GetType().Name + " calling " + methodStr );
-		MethodInfo theMethod = this.GetType().GetMethod(methodStr);
-
-		if (theMethod != null) {
-			object [] parameters = new object [] {target, message.values};
-			theMethod.Invoke(this, parameters);
+		SowizTargetControlDelegate targetControlDelegate = null; 
+		if (targetControlDelegates.TryGetValue(message.descriptor, out targetControlDelegate))
+		{
+			// call the target delegate for each target 
+			foreach (GameObject target in targets) {
+				targetControlDelegate(target, message.values);
+			}
 		}
 	}
 		

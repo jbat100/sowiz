@@ -231,7 +231,8 @@ public class SowizControlMessageBuffer {
 		SowizControlMessage sowizMessage = SowizControlMessage.FromOscMessage (oscMessage);
 		if (sowizMessage != null) 
 		{
-			Debug.Log("Received message : " + sowizMessage.ToString() );
+			//Loging here is too expensive when receiving kHz + message frequencies
+			//Debug.Log("Received message : " + sowizMessage.ToString() );
 			bufferQueue.Enqueue(sowizMessage);
 		}
 
