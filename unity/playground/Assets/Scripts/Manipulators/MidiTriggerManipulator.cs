@@ -15,7 +15,9 @@ public class MidiTriggerManipulator : SowizManipulator {
 			foreach(MidiTrigger trigger in triggers) {
 
 				switch (midiMessageType) {
+
 				case "note_on":
+					break;
 
 				}
 
