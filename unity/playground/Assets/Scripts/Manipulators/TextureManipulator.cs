@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class TextureManipulator : SowizManipulator {
+public class TextureManipulator : SonosthesiaManipulator {
 
-	public SowizFloatMapping hueMapping = new SowizFloatMapping(0f, 1f);
-	public SowizFloatMapping saturationMapping = new SowizFloatMapping(0f, 1f);
-	public SowizFloatMapping brightnessMapping = new SowizFloatMapping(0f, 1f);
+	public SonosthesiaFloatMapping hueMapping = new SonosthesiaFloatMapping(0f, 1f);
+	public SonosthesiaFloatMapping saturationMapping = new SonosthesiaFloatMapping(0f, 1f);
+	public SonosthesiaFloatMapping brightnessMapping = new SonosthesiaFloatMapping(0f, 1f);
 
-	void Start() {
+	public override void Start() {
 
 		targetControlDelegates["hue"] = delegate(GameObject target, ArrayList values) {
 			HSBColor hsbColor = HSBColor.FromColor(GetTargetColor(target));

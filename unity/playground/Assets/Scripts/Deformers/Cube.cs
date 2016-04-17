@@ -99,7 +99,7 @@ public class Cube : MonoBehaviour {
 
 	private void CreateTriangles () {
 
-		int quads = (xSize * ySize + xSize * zSize + ySize * zSize) * 2;
+		//int quads = (xSize * ySize + xSize * zSize + ySize * zSize) * 2;
 		int[] trianglesZ = new int[(xSize * ySize) * 12];
 		int[] trianglesX = new int[(ySize * zSize) * 12];
 		int[] trianglesY = new int[(xSize * zSize) * 12];

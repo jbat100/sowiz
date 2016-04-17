@@ -2,13 +2,15 @@
 using System.Collections;
 
 
-public class TransformManipulator : SowizManipulator {
+public class TransformManipulator : SonosthesiaManipulator {
 
-	public SowizVector3Mapping scaleMapping = new SowizVector3Mapping(new Vector3(0.5f, 1f, 1f), new Vector3(5f, 1f, 1f));
-	public SowizRotator Rotator = new SowizRotator(new Vector3(1f, 0f, 0f), 180f);
-	public SowizSpinner Spinner = new SowizSpinner(new Vector3(1f, 0f, 0f), 180f);
+	public SonosthesiaVector3Mapping scaleMapping = new SonosthesiaVector3Mapping(new Vector3(0.5f, 1f, 1f), new Vector3(5f, 1f, 1f));
+	public SonosthesiaRotator Rotator = new SonosthesiaRotator(new Vector3(1f, 0f, 0f), 180f);
+	public SonosthesiaSpinner Spinner = new SonosthesiaSpinner(new Vector3(1f, 0f, 0f), 180f);
 
-	void Start() {
+	public override void Start() {
+
+
 
 		targetControlDelegates["scale"] = delegate(GameObject target, ArrayList values) {
 			Vector3 newScale = scaleMapping.Map((float)(values[0]));
@@ -20,7 +22,7 @@ public class TransformManipulator : SowizManipulator {
 			target.transform.rotation = Rotator.GetRotation ((float)(values[0]));
 		};
 
-		mainControlDelegates["spin"] = delegate(ArrayList values) {
+		controlDelegates["spin"] = delegate(ArrayList values) {
 			Spinner.Spin = (float)(values[0]);
 		};
 

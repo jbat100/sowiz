@@ -3,11 +3,11 @@ using System.Collections;
 using UnityEditor;
 
 
-[CustomEditor(typeof(SowizManipulator))]
+[CustomEditor(typeof(SonosthesiaManipulator))]
 public class MappingEditor : Editor {
 
 	public override void OnInspectorGUI() {
-		SowizManipulator manipulator = (SowizManipulator)target;
+		SonosthesiaManipulator manipulator = (SonosthesiaManipulator)target;
 	}
 
 }

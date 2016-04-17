@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ShurikenManipulator : SowizManipulator {
+public class ShurikenManipulator : SonosthesiaManipulator {
 
-	public SowizFloatMapping hueMapping = new SowizFloatMapping(0f, 1f);
-	public SowizFloatMapping saturationMapping = new SowizFloatMapping(0f, 1f);
-	public SowizFloatMapping brightnessMapping = new SowizFloatMapping(0f, 1f);
-	public SowizFloatMapping scaleMapping = new SowizFloatMapping(0.1f, 1.9f);
-	public SowizFloatMapping velocityMapping = new SowizFloatMapping(0.1f, 5.0f);
+	public SonosthesiaFloatMapping hueMapping = new SonosthesiaFloatMapping(0f, 1f);
+	public SonosthesiaFloatMapping saturationMapping = new SonosthesiaFloatMapping(0f, 1f);
+	public SonosthesiaFloatMapping brightnessMapping = new SonosthesiaFloatMapping(0f, 1f);
+	public SonosthesiaFloatMapping scaleMapping = new SonosthesiaFloatMapping(0.1f, 1.9f);
+	public SonosthesiaFloatMapping velocityMapping = new SonosthesiaFloatMapping(0.1f, 5.0f);
 
 	/*
 	 * 
@@ -17,7 +17,7 @@ public class ShurikenManipulator : SowizManipulator {
 	 * The base manipulator is used to access non-module attributes of the particle system
 	 */
 
-	void Start() {
+	public override void Start() {
 		//descriptors = new string[] {"scale", "velocity", "hue", "saturation", "brightness"};	
 		//descriptors = new string[] {"hue"};	
 

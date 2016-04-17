@@ -5,7 +5,6 @@ using System.Collections;
 // http://catlikecoding.com/unity/tutorials/cube-sphere/
 // http://catlikecoding.com/unity/tutorials/mesh-deformation/
 
-using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter))]
 public class MeshDeformer : MonoBehaviour {

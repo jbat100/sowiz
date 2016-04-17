@@ -18,10 +18,9 @@ public class ValueMapping : System.Object {
 
 	private float random = 0.0f;
 	private float drunk = 0.5f;
-	private float linear = 0.0f;
 	private float input = 0.0f;
 
-	public float SetInput(float value) {
+	public void SetInput(float value) {
 		input = value;
 	}
 
@@ -65,7 +64,7 @@ public class ValueMapping : System.Object {
 	public void SyncTo(ValueMapping other) {
 		drunk = other.drunk;
 		random = other.random;
-	};
+	}
 
 	public float GetMapped() {
 
@@ -74,10 +73,13 @@ public class ValueMapping : System.Object {
 		switch(mappingMode) {
 		case MappingMode.Drunk:
 			value = drunk;
+			break;
 		case MappingMode.Random:
 			value = random;
+			break;
 		case MappingMode.Linear:
 			value = input;
+			break;
 		default:
 			break;
 		}
@@ -87,3 +89,70 @@ public class ValueMapping : System.Object {
 	}
 
 };
+
+
+
+[System.Serializable]
+public class SonosthesiaFloatMapping : System.Object
+{
+	public float Zero = 0f;
+	public float Unit = 1f;
+
+	public SonosthesiaFloatMapping(float _zero, float _unit) {
+		Zero = _zero;
+		Unit = _unit;
+	}
+
+	public float Map(float val) {
+		return (val * (Unit - Zero)) + Zero;
+	}
+}
+
+[System.Serializable]
+public class SonosthesiaVector3Mapping : System.Object
+{
+	public Vector3 Zero = new Vector3(0f, 0f, 0f);
+	public Vector3 Unit = new Vector3(0f, 0f, 1f);
+
+	public SonosthesiaVector3Mapping(Vector3 _zero, Vector3 _unit) {
+		Zero = _zero;
+		Unit = _unit;
+	}
+
+	public Vector3 Map(float val) {
+		return ((1f - val) * Zero) + (val * Unit);
+	}
+}
+
+[System.Serializable]
+public class SonosthesiaRotator : System.Object
+{
+	public Vector3 Axis = new Vector3(1f, 0f, 0f);
+	public float Scale = 180f;
+
+	public SonosthesiaRotator(Vector3 _axis, float _scale) {
+		Axis = _axis;
+		Scale = _scale;
+	}
+
+	public Quaternion GetRotation(float val) {
+		return Quaternion.AngleAxis ( Scale * val, Axis );
+	}
+}
+
+[System.Serializable]
+public class SonosthesiaSpinner : System.Object
+{
+	public Vector3 Axis = new Vector3(1f, 0f, 0f);
+	public float Scale = 180f;
+	public float Spin = 0f;
+
+	public SonosthesiaSpinner(Vector3 _axis, float _scale) {
+		Axis = _axis;
+		Scale = _scale;
+	}
+
+	public Quaternion GetRotation() {
+		return Quaternion.AngleAxis ((float)(Scale * Spin * Time.deltaTime * 60f), Axis);
+	}
+}

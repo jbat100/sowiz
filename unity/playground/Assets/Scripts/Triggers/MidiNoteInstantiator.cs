@@ -37,12 +37,13 @@ public class MidiNoteInstance : System.Object {
 }
 
 
-public class MidiNoteInstantiator : MidiTrigger {
+public class MidiNoteInstantiator : MidiResponder {
 
 	private static string Tag = "MidiNoteInstantiator";
 
 	public MidiNoteDomain NoteDomain;
-	public MidiNoteTransform NoteTransform;
+
+	public MidiNoteTransformModifier TransformModifier;
 
 	// I think there should be only one prefab so as to have instantiator level modifiers which fit
 	// If you want multiple prefabs, then create mutiple instantiators
@@ -58,13 +59,13 @@ public class MidiNoteInstantiator : MidiTrigger {
 	private void DestroyInstance (int channel, int pitch) {
 		MidiNoteInstance instance = GetInstance(channel, pitch);
 		instances.Remove(instance);
-		if (instance) {
-			Destroy(instance);
+		if (instance != null) {
+			Destroy(instance.PrefabInstance);
 		};
 	}
 
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 
 		noteOnDelegate = delegate(int channel, int pitch, int velocity) {
 
@@ -90,10 +91,10 @@ public class MidiNoteInstantiator : MidiTrigger {
 			Quaternion rotation = Quaternion.identity;
 			Vector3 scale = Vector3.one;
 
-			if (NoteTransform) {
-				position = NoteTransform.GetPosition(channel, pitch, velocity);
-				rotation = NoteTransform.GetRotation(channel, pitch, velocity);
-				scale = NoteTransform.GetScale(channel, pitch, velocity);
+			if (TransformModifier) {
+				position = TransformModifier.GetLocalPosition(channel, pitch, velocity);
+				rotation = TransformModifier.GetLocalRotation(channel, pitch, velocity);
+				scale = TransformModifier.GetLocalScale(channel, pitch, velocity);
 			} 
 
 			instance.transform.localPosition = position;
@@ -103,6 +104,12 @@ public class MidiNoteInstantiator : MidiTrigger {
 			Debug.Log(Tag + " relative transform : " + position + " " + rotation + " " + scale);
 
 			// color ? material ? depends on prefab so it's difficult to do something generic
+
+		};
+
+		noteOffDelegate = delegate(int channel, int pitch, int velocity) {
+
+			DestroyInstance(channel, pitch);
 
 		};
 	

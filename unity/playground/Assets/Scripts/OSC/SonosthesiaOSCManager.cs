@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using System.Threading;
 using System;
 
-public class SowizControlMessage
+public class SonosthesiaControlMessage
 {
 	public string descriptor;
 	public string group;
 
 	public ArrayList values;
 
-	public SowizControlMessage(string _group, string _descriptor, ArrayList _values) {
+	public SonosthesiaControlMessage(string _group, string _descriptor, ArrayList _values) {
 		descriptor = _descriptor;
 		group = _group;
 		values = _values;
@@ -20,17 +20,17 @@ public class SowizControlMessage
 	public override string ToString()
 	{
 		//Debug.Log("group is " + group);
-		return "SowizRoutingParameters (descriptor: " + descriptor + ", group: " + group + ")";
+		return "SonosthesiaRoutingParameters (descriptor: " + descriptor + ", group: " + group + ")";
 	}
 
-	public bool sameTarget(SowizControlMessage message) {
+	public bool sameTarget(SonosthesiaControlMessage message) {
 		if (!message.descriptor.Equals (descriptor) || !message.group.Equals (group)) {
 			return false;
 		}
 		return true;
 	}
 
-	public static SowizControlMessage FromOscMessage(OscMessage message) {
+	public static SonosthesiaControlMessage FromOscMessage(OscMessage message) {
 
 		string[] elements = message.Address.Split("/".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
 
@@ -42,14 +42,14 @@ public class SowizControlMessage
 			return null;
 		}
 
-		return new SowizControlMessage (elements [0], elements [1], message.Values);
+		return new SonosthesiaControlMessage (elements [0], elements [1], message.Values);
 	}
 };
 
-public class SowizControlMessageQueue {
+public class SonosthesiaControlMessageQueue {
 
 	private readonly object syncLock = new object();
-	private List<SowizControlMessage> queue;
+	private List<SonosthesiaControlMessage> queue;
 
 	public int Count
 	{
@@ -62,12 +62,12 @@ public class SowizControlMessageQueue {
 		}
 	}
 
-	public SowizControlMessageQueue()
+	public SonosthesiaControlMessageQueue()
 	{
-		this.queue = new List<SowizControlMessage>();
+		this.queue = new List<SonosthesiaControlMessage>();
 	}
 
-	public SowizControlMessage Peek()
+	public SonosthesiaControlMessage Peek()
 	{
 		lock(syncLock)
 		{
@@ -75,12 +75,12 @@ public class SowizControlMessageQueue {
 		}
 	}	
 
-	private void UnprotectedEnqueue (SowizControlMessage message) {
+	private void UnprotectedEnqueue (SonosthesiaControlMessage message) {
 
 		int index = -1;
 		for (int i = 0; i < queue.Count; i++)
 		{
-			SowizControlMessage m = queue[i];
+			SonosthesiaControlMessage m = queue[i];
 			if (m.sameTarget(message)) 
 			{
 				index = i;
@@ -98,7 +98,7 @@ public class SowizControlMessageQueue {
 		
 	}
 
-	public void Enqueue(SowizControlMessage message)
+	public void Enqueue(SonosthesiaControlMessage message)
 	{
 		lock(syncLock)
 		{
@@ -106,7 +106,7 @@ public class SowizControlMessageQueue {
 		}
 	}
 
-	public void EnqueueList(List<SowizControlMessage> messages) {
+	public void EnqueueList(List<SonosthesiaControlMessage> messages) {
 
 		lock(syncLock)
 		{
@@ -114,7 +114,7 @@ public class SowizControlMessageQueue {
 				Debug.Log("Enqueuing " + messages.Count + " control messages");
 			}
 
-			foreach(SowizControlMessage message in messages)
+			foreach(SonosthesiaControlMessage message in messages)
 			{
 				this.UnprotectedEnqueue(message);
 			}
@@ -122,20 +122,20 @@ public class SowizControlMessageQueue {
 
 	}
 
-	public void TransferFrom(SowizControlMessageQueue otherQueue)
+	public void TransferFrom(SonosthesiaControlMessageQueue otherQueue)
 	{
-		List<SowizControlMessage> transfered = otherQueue.DequeueAll();
+		List<SonosthesiaControlMessage> transfered = otherQueue.DequeueAll();
 
 		this.EnqueueList(transfered);
 
 	}
 
-	public SowizControlMessage Dequeue()
+	public SonosthesiaControlMessage Dequeue()
 	{
 		lock(syncLock)
 		{
 			if (queue.Count > 0) {
-				SowizControlMessage message = queue[0];
+				SonosthesiaControlMessage message = queue[0];
 				queue.RemoveAt(0);
 				return message;
 			}
@@ -143,11 +143,11 @@ public class SowizControlMessageQueue {
 		}
 	}
 
-	public List<SowizControlMessage> DequeueAll()
+	public List<SonosthesiaControlMessage> DequeueAll()
 	{
 		lock(syncLock)
 		{
-			List<SowizControlMessage> copied = new List<SowizControlMessage>(queue);			
+			List<SonosthesiaControlMessage> copied = new List<SonosthesiaControlMessage>(queue);			
 			queue.Clear();
 			return copied;
 		}
@@ -161,31 +161,31 @@ public class SowizControlMessageQueue {
 		}
 	}
 
-	public SowizControlMessage[] CopyToArray()
+	public SonosthesiaControlMessage[] CopyToArray()
 	{
 		lock(syncLock)
 		{
 			if(queue.Count == 0)
 			{
-				return new SowizControlMessage[0];
+				return new SonosthesiaControlMessage[0];
 			}
 
-			SowizControlMessage[] values = new SowizControlMessage[queue.Count];
+			SonosthesiaControlMessage[] values = new SonosthesiaControlMessage[queue.Count];
 			queue.CopyTo(values, 0);	
 			return values;
 		}
 	}
 
-	public static SowizControlMessageQueue InitFromArray(IEnumerable<SowizControlMessage> initValues)
+	public static SonosthesiaControlMessageQueue InitFromArray(IEnumerable<SonosthesiaControlMessage> initValues)
 	{
-		var queue = new SowizControlMessageQueue();
+		var queue = new SonosthesiaControlMessageQueue();
 
 		if(initValues == null)	
 		{
 			return queue;
 		}
 
-		foreach(SowizControlMessage val in initValues)
+		foreach(SonosthesiaControlMessage val in initValues)
 		{
 			queue.Enqueue(val);
 		}
@@ -195,19 +195,19 @@ public class SowizControlMessageQueue {
 };
 	
 
-public class SowizControlMessageBuffer {
+public class SonosthesiaControlMessageBuffer {
 
 	private Osc handler;
 
-	private SowizControlMessageQueue bufferQueue;
-	private SowizControlMessageQueue targetQueue;
+	private SonosthesiaControlMessageQueue bufferQueue;
+	private SonosthesiaControlMessageQueue targetQueue;
 
 	private Timer timer;
 	private int period;
 
-	public SowizControlMessageBuffer(Osc _handler, SowizControlMessageQueue _targetQueue, int _period) {
+	public SonosthesiaControlMessageBuffer(Osc _handler, SonosthesiaControlMessageQueue _targetQueue, int _period) {
 		
-		bufferQueue = new SowizControlMessageQueue ();
+		bufferQueue = new SonosthesiaControlMessageQueue ();
 		targetQueue = _targetQueue;
 		handler = _handler;
 		handler.SetAllMessageHandler(MessageCallback);
@@ -228,12 +228,12 @@ public class SowizControlMessageBuffer {
 	public void MessageCallback (OscMessage oscMessage) {
 		
 		//Debug.Log("DefaultMessageCallback received message " + message.Address + ' ' + message.Values[0]);
-		SowizControlMessage sowizMessage = SowizControlMessage.FromOscMessage (oscMessage);
-		if (sowizMessage != null) 
+		SonosthesiaControlMessage SonosthesiaMessage = SonosthesiaControlMessage.FromOscMessage (oscMessage);
+		if (SonosthesiaMessage != null) 
 		{
 			//Loging here is too expensive when receiving kHz + message frequencies
-			//Debug.Log("Received message : " + sowizMessage.ToString() );
-			bufferQueue.Enqueue(sowizMessage);
+			//Debug.Log("Received message : " + SonosthesiaMessage.ToString() );
+			bufferQueue.Enqueue(SonosthesiaMessage);
 		}
 
 	}
@@ -246,19 +246,19 @@ public class SowizControlMessageBuffer {
 
 };
 
-public class SowizOSCManager : MonoBehaviour {
+public class SonosthesiaOSCManager : MonoBehaviour {
 
 	public string remoteIP = "127.0.0.1";
 	public int remotePort = 9123;
 	public int localPort = 3333;
 
 	private Osc handler;
-	private SowizControlMessageBuffer messageBuffer;
-	private SowizControlMessageQueue messageQueue;
+	private SonosthesiaControlMessageBuffer messageBuffer;
+	private SonosthesiaControlMessageQueue messageQueue;
 
-	private SowizManipulator[] manipulators;
+	private SonosthesiaManipulator[] manipulators;
 	private int updateCount = 0;
-	private float period = 0.017f;
+
 
 	// Use this for initialization
 	void Start () {
@@ -271,12 +271,12 @@ public class SowizOSCManager : MonoBehaviour {
 		handler = (Osc)GetComponent("Osc");
 		handler.init(udp);
 
-		messageQueue = new SowizControlMessageQueue ();
-		messageBuffer = new SowizControlMessageBuffer(handler, messageQueue, 17);
+		messageQueue = new SonosthesiaControlMessageQueue ();
+		messageBuffer = new SonosthesiaControlMessageBuffer(handler, messageQueue, 17);
 
 		// get all game objects with maniulator components
 
-		manipulators = FindObjectsOfType(typeof(SowizManipulator)) as SowizManipulator[];
+		manipulators = FindObjectsOfType(typeof(SonosthesiaManipulator)) as SonosthesiaManipulator[];
 
 		Debug.Log("Found " + manipulators.Length + " manipulators");
 
@@ -291,9 +291,9 @@ public class SowizOSCManager : MonoBehaviour {
 
 		updateCount++;
 
-		List<SowizControlMessage> dequeued = messageQueue.DequeueAll();
+		List<SonosthesiaControlMessage> dequeued = messageQueue.DequeueAll();
 
-		foreach (SowizControlMessage message in dequeued) {
+		foreach (SonosthesiaControlMessage message in dequeued) {
 			ApplyMessage(message);
 		}
 
@@ -308,9 +308,9 @@ public class SowizOSCManager : MonoBehaviour {
 
 	}
 
-	void ApplyMessage(SowizControlMessage message) {
+	void ApplyMessage(SonosthesiaControlMessage message) {
 		
-		foreach (SowizManipulator manipulator in manipulators) {
+		foreach (SonosthesiaManipulator manipulator in manipulators) {
 			manipulator.ApplyMessage(message);
 		}
 
