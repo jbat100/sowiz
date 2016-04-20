@@ -5,21 +5,21 @@ using System;
 
 public class MidiNoteInstance : System.Object {
 
-	GameObject prefabInstance;
+	GameObject instance;
 
 	int channel;
 	int pitch;
 	int velocity;
 
-	public MidiNoteInstance(GameObject _prefabInstance, int _channel, int _pitch, int _velocity) {
-		prefabInstance = _prefabInstance;
+	public MidiNoteInstance(GameObject _instance, int _channel, int _pitch, int _velocity) {
+		instance = _instance;
 		channel = _channel;
 		pitch = _pitch;
 		velocity = _velocity;
 	}
 
-	public GameObject PrefabInstance { 
-		get { return prefabInstance; }
+	public GameObject Instance { 
+		get { return instance; }
 	}
 
 	public int Channel { 
@@ -43,13 +43,10 @@ public class MidiNoteInstantiator : MidiResponder {
 
 	public MidiNoteDomain NoteDomain;
 
-	public MidiNoteTransformModifier TransformModifier;
-
-	// I think there should be only one prefab so as to have instantiator level modifiers which fit
-	// If you want multiple prefabs, then create mutiple instantiators
 	public GameObject prefab;
 
 	private List<MidiNoteInstance> instances;
+	private List<MidiNoteModifier> modifiers;
 
 	private MidiNoteInstance GetInstance (int channel, int pitch) {
 		// make this faster with ling
@@ -57,15 +54,17 @@ public class MidiNoteInstantiator : MidiResponder {
 	}
 
 	private void DestroyInstance (int channel, int pitch) {
-		MidiNoteInstance instance = GetInstance(channel, pitch);
-		instances.Remove(instance);
-		if (instance != null) {
-			Destroy(instance.PrefabInstance);
+		MidiNoteInstance midiNoteInstance = GetInstance(channel, pitch);
+		instances.Remove(midiNoteInstance);
+		if (midiNoteInstance != null) {
+			Destroy(midiNoteInstance.Instance);
 		};
 	}
 
 	// Use this for initialization
 	public override void Start () {
+
+		// TODO : get all modifiers
 
 		noteOnDelegate = delegate(int channel, int pitch, int velocity) {
 
@@ -77,37 +76,28 @@ public class MidiNoteInstantiator : MidiResponder {
 			}
 
 			if (prefab == null) {
-				Debug.Log(Tag + " NoteObject did not specify prefab");
+				Debug.Log(Tag + " no prefab");
 				return; 
 			}
 
 			// set the instance as a child of the spawner so that the overall spawning structure can be moved/rotated
-
 			GameObject instance = Instantiate(prefab);
-
 			instance.transform.parent = transform;
 
-			Vector3 position = Vector3.zero;
-			Quaternion rotation = Quaternion.identity;
-			Vector3 scale = Vector3.one;
-
-			if (TransformModifier) {
-				position = TransformModifier.GetLocalPosition(channel, pitch, velocity);
-				rotation = TransformModifier.GetLocalRotation(channel, pitch, velocity);
-				scale = TransformModifier.GetLocalScale(channel, pitch, velocity);
-			} 
-
-			instance.transform.localPosition = position;
-			instance.transform.localRotation = rotation;
-			instance.transform.localScale = scale;
-
-			Debug.Log(Tag + " relative transform : " + position + " " + rotation + " " + scale);
-
-			// color ? material ? depends on prefab so it's difficult to do something generic
+			foreach(MidiNoteModifier modifier in modifiers) {
+				modifier.NoteOn(instance, channel, pitch, velocity);
+			}
 
 		};
 
 		noteOffDelegate = delegate(int channel, int pitch, int velocity) {
+
+			MidiNoteInstance midiNoteInstance = GetInstance(channel, pitch);
+			if (midiNoteInstance) {
+				foreach(MidiNoteModifier modifier in modifiers) {
+					modifier.NoteOff(midiNoteInstance.Instance, channel, pitch, velocity);
+				}
+			}
 
 			DestroyInstance(channel, pitch);
 

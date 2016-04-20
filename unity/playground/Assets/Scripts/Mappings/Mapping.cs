@@ -3,12 +3,12 @@ using System.Collections;
 
 
 [System.Serializable]
-public class ValueMapping : System.Object {
+public class ValueGenerator : System.Object {
 
-	public enum MappingMode { Linear, Random, Drunk };
+	public enum GeneratorMode { Linear, Random, Drunk };
 	public enum OverflowMode { Unbound, Clamp, Repeat };
 
-	public MappingMode mappingMode;
+	public GeneratorMode mappingMode;
 	public OverflowMode overflowMode;
 
 	public float offset = 0.0f;
@@ -44,11 +44,11 @@ public class ValueMapping : System.Object {
 	public void Update(float time) {
 
 		switch (mappingMode) {
-		case MappingMode.Drunk:
+		case GeneratorMode.Drunk:
 			drunk += (drunkStep * (UnityEngine.Random.value > 0.5f ? 1.0f : -1.0f) ) * time;
 			drunk = ApplyOverflow(drunk);
 			break;
-		case MappingMode.Random:
+		case GeneratorMode.Random:
 			random = UnityEngine.Random.value;
 			break;
 		default:
@@ -61,23 +61,23 @@ public class ValueMapping : System.Object {
 	// values to be locked accross multiple mappings then call Update on one of them, then call SyncTo 
 	// on the others giving the first as argument
 
-	public void SyncTo(ValueMapping other) {
+	public void SyncTo(ValueGenerator other) {
 		drunk = other.drunk;
 		random = other.random;
 	}
 
-	public float GetMapped() {
+	public float Generate() {
 
 		float value = 0.0f;
 
 		switch(mappingMode) {
-		case MappingMode.Drunk:
+		case GeneratorMode.Drunk:
 			value = drunk;
 			break;
-		case MappingMode.Random:
+		case GeneratorMode.Random:
 			value = random;
 			break;
-		case MappingMode.Linear:
+		case GeneratorMode.Linear:
 			value = input;
 			break;
 		default:
@@ -93,15 +93,10 @@ public class ValueMapping : System.Object {
 
 
 [System.Serializable]
-public class SonosthesiaFloatMapping : System.Object
+public class FloatMapping : System.Object
 {
 	public float Zero = 0f;
 	public float Unit = 1f;
-
-	public SonosthesiaFloatMapping(float _zero, float _unit) {
-		Zero = _zero;
-		Unit = _unit;
-	}
 
 	public float Map(float val) {
 		return (val * (Unit - Zero)) + Zero;
@@ -109,31 +104,78 @@ public class SonosthesiaFloatMapping : System.Object
 }
 
 [System.Serializable]
-public class SonosthesiaVector3Mapping : System.Object
+public class Vector3Mapping : System.Object
 {
-	public Vector3 Zero = new Vector3(0f, 0f, 0f);
-	public Vector3 Unit = new Vector3(0f, 0f, 1f);
-
-	public SonosthesiaVector3Mapping(Vector3 _zero, Vector3 _unit) {
-		Zero = _zero;
-		Unit = _unit;
-	}
+	public Vector3 Zero = Vector3.zero;
+	public Vector3 Unit = Vector3.one;
 
 	public Vector3 Map(float val) {
-		return ((1f - val) * Zero) + (val * Unit);
+		return Vector3.Lerp(Zero, Unit, val);
 	}
 }
 
 [System.Serializable]
-public class SonosthesiaRotator : System.Object
+public class QuaternionMapping : System.Object
 {
-	public Vector3 Axis = new Vector3(1f, 0f, 0f);
-	public float Scale = 180f;
+	public Quaternion Zero = Quaternion.identity;
+	public Quaternion Unit = Quaternion.LookRotation(Vector3.forward);
 
-	public SonosthesiaRotator(Vector3 _axis, float _scale) {
-		Axis = _axis;
-		Scale = _scale;
+	public Quaternion Map(float val) {
+		return Quaternion.Slerp(Zero, Unit, val);
 	}
+}
+	
+
+[System.Serializable]
+public class TransformMapping : System.Object
+{
+	public Transform Zero;
+	public Transform Unit;
+
+	public bool SlerpRotation = true; // slerp is slower but better
+
+	public void MapScale(Transform input, float val) {
+		input.localScale = Vector3.Lerp(Zero.localScale, Unit.localScale, val);
+	}
+
+	public void MapPosition(Transform input, float val) {
+		input.localPosition = Vector3.Lerp(Zero.localPosition, Unit.localPosition, val);
+	}
+
+	public void MapRotation(Transform input, float val) {
+		if (SlerpRotation) input.localRotation = Quaternion.Slerp(Zero.localRotation, Unit.localRotation, val);
+		else input.localRotation = Quaternion.Lerp(Zero.localRotation, Unit.localRotation, val);
+	}
+
+	public void MapTransform(Transform input, float val) {
+		MapScale(input, val);
+		MapPosition(input, val);
+		MapRotation(input, val);
+	}
+}
+
+[System.Serializable]
+public class MeshMapping : System.Object
+{
+	public Mesh mesh;
+
+	// val will determine which vertex on the mesh will be selected, then map vertex position and normal
+
+	public void MapPosition(Transform input, float val) { }
+
+	public void MapRotation(Transform input, float val) { }
+
+	public void MapTransform(Transform input, float val) {
+		MapPosition(input, val);
+		MapRotation(input, val);
+	}
+}
+
+[System.Serializable]
+public class Rotator : System.Object
+{
+	public Vector3 Axis = Vector3.forward;
+	public float Scale = 180f;
 
 	public Quaternion GetRotation(float val) {
 		return Quaternion.AngleAxis ( Scale * val, Axis );
@@ -141,16 +183,11 @@ public class SonosthesiaRotator : System.Object
 }
 
 [System.Serializable]
-public class SonosthesiaSpinner : System.Object
+public class Spinner : System.Object
 {
-	public Vector3 Axis = new Vector3(1f, 0f, 0f);
+	public Vector3 Axis = Vector3.forward;
 	public float Scale = 180f;
 	public float Spin = 0f;
-
-	public SonosthesiaSpinner(Vector3 _axis, float _scale) {
-		Axis = _axis;
-		Scale = _scale;
-	}
 
 	public Quaternion GetRotation() {
 		return Quaternion.AngleAxis ((float)(Scale * Spin * Time.deltaTime * 60f), Axis);
