@@ -5,13 +5,13 @@ using System;
 public enum MidiNoteParameter { Channel, Pitch, Velocity };
 
 [System.Serializable]
-public class MidiNoteValueGenerator : System.Object {
+public class MidiValueGenerator : System.Object {
 
 	public ValueGenerator valueGenerator;
 
 	public MidiNoteParameter parameter = MidiNoteParameter.Pitch;
 
-	public float Generate(int channel, int pitch, int velocity) {
+	public float GenerateNoteValue(int channel, int pitch, int velocity) {
 
 		int value = 0;
 

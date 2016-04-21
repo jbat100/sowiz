@@ -1,43 +1,43 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MidiNotePositionModifier : MidiNoteModifier {
+public class MidiRotationModifier : MidiModifier {
 
-	public enum Foundation { Identity, Vector, Transform, Mesh, Spline };
+	public enum Foundation { Identity, Quaternion, Transform, Mesh, Spline };
 
 	public Foundation foundation;
 
-	public Vector3Mapping vectorMapping;
+	public QuaternionMapping quaternionMapping;
 	public TransformMapping transformMapping;
 	public MeshMapping meshMapping;
 	// public SplineMapping splineMapping;
 
 	// Use this for initialization
 	void Start () {
-	
+
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
-	
+
 	}
 
 	public virtual void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
 
-		float val = valueGenerator.Generate(channel, pitch, velocity);
+		float val = valueGenerator.GenerateNoteValue(channel, pitch, velocity);
 
 		switch(foundation) {
 		case Foundation.Identity:
-			instance.transform.localPosition = Vector3.zero;
+			instance.transform.localRotation = Quaternion.identity;
 			break;
-		case Foundation.Vector:
-			instance.transform.localPosition = vectorMapping.Map(val);
+		case Foundation.Quaternion:
+			instance.transform.localRotation = quaternionMapping.Map(val);
 			break;
 		case Foundation.Transform:
-			transformMapping.MapPosition(instance.transform, val);
+			instance.transform.localRotation = transformMapping.MapRotation(val);
 			break;
 		case Foundation.Mesh:
-			meshMapping.MapPosition(instance.transform, val);
+			instance.transform.localRotation = meshMapping.MapRotation(val);
 			break;
 		case Foundation.Spline:
 			break;

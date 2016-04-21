@@ -134,24 +134,19 @@ public class TransformMapping : System.Object
 
 	public bool SlerpRotation = true; // slerp is slower but better
 
-	public void MapScale(Transform input, float val) {
-		input.localScale = Vector3.Lerp(Zero.localScale, Unit.localScale, val);
+	public Vector3 MapScale(Transform input, float val) {
+		return Vector3.Lerp(Zero.localScale, Unit.localScale, val);
 	}
 
-	public void MapPosition(Transform input, float val) {
-		input.localPosition = Vector3.Lerp(Zero.localPosition, Unit.localPosition, val);
+	public Vector3 MapPosition(Transform input, float val) {
+		return Vector3.Lerp(Zero.localPosition, Unit.localPosition, val);
 	}
 
-	public void MapRotation(Transform input, float val) {
-		if (SlerpRotation) input.localRotation = Quaternion.Slerp(Zero.localRotation, Unit.localRotation, val);
-		else input.localRotation = Quaternion.Lerp(Zero.localRotation, Unit.localRotation, val);
+	public Quaternion MapRotation(Transform input, float val) {
+		if (SlerpRotation) return input.localRotation = Quaternion.Slerp(Zero.localRotation, Unit.localRotation, val);
+		return input.localRotation = Quaternion.Lerp(Zero.localRotation, Unit.localRotation, val);
 	}
 
-	public void MapTransform(Transform input, float val) {
-		MapScale(input, val);
-		MapPosition(input, val);
-		MapRotation(input, val);
-	}
 }
 
 [System.Serializable]
@@ -161,13 +156,12 @@ public class MeshMapping : System.Object
 
 	// val will determine which vertex on the mesh will be selected, then map vertex position and normal
 
-	public void MapPosition(Transform input, float val) { }
+	public Vector3 MapPosition(float val) { 
+		return Vector3.zero;
+	}
 
-	public void MapRotation(Transform input, float val) { }
-
-	public void MapTransform(Transform input, float val) {
-		MapPosition(input, val);
-		MapRotation(input, val);
+	public Quaternion MapRotation(float val) { 
+		return Quaternion.identity;
 	}
 }
 

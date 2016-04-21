@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MidiNoteModifier : MonoBehaviour {
+public class MidiModifier : MonoBehaviour {
 
-	public MidiNoteValueGenerator valueGenerator;
+	public MidiValueGenerator valueGenerator;
 
 	// perhaps have a sync (source/target) switch here for the value generator
 
-	private MidiNoteModifier syncSource;
+	private MidiModifier syncSource;
 
 	// Use this for initialization
 	public virtual void Start () {

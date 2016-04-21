@@ -37,7 +37,7 @@ public class MidiNoteInstance : System.Object {
 }
 
 
-public class MidiNoteInstantiator : MidiResponder {
+public class MidiFactory : MidiResponder {
 
 	private static string Tag = "MidiNoteInstantiator";
 
@@ -46,7 +46,7 @@ public class MidiNoteInstantiator : MidiResponder {
 	public GameObject prefab;
 
 	private List<MidiNoteInstance> instances;
-	private List<MidiNoteModifier> modifiers;
+	private List<MidiModifier> modifiers;
 
 	private MidiNoteInstance GetInstance (int channel, int pitch) {
 		// make this faster with ling

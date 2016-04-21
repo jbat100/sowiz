@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MidiNoteScaleModifier : MidiNoteModifier {
+public class MidiScaleModifier : MidiModifier {
 
 	public enum Foundation { Identity, Vector, Transform };
 
@@ -24,7 +24,7 @@ public class MidiNoteScaleModifier : MidiNoteModifier {
 
 	public virtual void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
 
-		float val = valueGenerator.Generate(channel, pitch, velocity);
+		float val = valueGenerator.GenerateNoteValue(channel, pitch, velocity);
 
 		switch(foundation) {
 		case Foundation.Identity:
@@ -34,7 +34,7 @@ public class MidiNoteScaleModifier : MidiNoteModifier {
 			instance.transform.localScale = vectorMapping.Map(val);
 			break;
 		case Foundation.Transform:
-			transformMapping.MapScale(instance.transform, val);
+			instance.transform.localScale = transformMapping.MapScale(val);
 			break;
 		}
 
