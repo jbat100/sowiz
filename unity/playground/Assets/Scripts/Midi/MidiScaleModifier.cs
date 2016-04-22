@@ -9,20 +9,8 @@ public class MidiScaleModifier : MidiModifier {
 
 	public Vector3Mapping vectorMapping;
 	public TransformMapping transformMapping;
-	public MeshMapping meshMapping;
-	// public SplineMapping splineMapping;
 
-	// Use this for initialization
-	void Start () {
-
-	}
-
-	// Update is called once per frame
-	void Update () {
-
-	}
-
-	public virtual void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
+	public override void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
 
 		float val = valueGenerator.GenerateNoteValue(channel, pitch, velocity);
 

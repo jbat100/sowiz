@@ -4,13 +4,11 @@ using System.Collections;
 
 public class TransformManipulator : SonosthesiaManipulator {
 
-	public SonosthesiaVector3Mapping scaleMapping = new SonosthesiaVector3Mapping(new Vector3(0.5f, 1f, 1f), new Vector3(5f, 1f, 1f));
-	public SonosthesiaRotator Rotator = new SonosthesiaRotator(new Vector3(1f, 0f, 0f), 180f);
-	public SonosthesiaSpinner Spinner = new SonosthesiaSpinner(new Vector3(1f, 0f, 0f), 180f);
+	public Vector3Mapping scaleMapping = new Vector3Mapping(new Vector3(0.5f, 1f, 1f), new Vector3(5f, 1f, 1f));
+	public Rotator Rotator = new Rotator(new Vector3(1f, 0f, 0f), 180f);
+	public Spinner Spinner = new Spinner(new Vector3(1f, 0f, 0f), 180f);
 
 	public override void Start() {
-
-
 
 		targetControlDelegates["scale"] = delegate(GameObject target, ArrayList values) {
 			Vector3 newScale = scaleMapping.Map((float)(values[0]));

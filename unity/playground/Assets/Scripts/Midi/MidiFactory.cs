@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System;
 
 public class MidiNoteInstance : System.Object {
@@ -39,7 +40,7 @@ public class MidiNoteInstance : System.Object {
 
 public class MidiFactory : MidiResponder {
 
-	private static string Tag = "MidiNoteInstantiator";
+	private static string Tag = "MidiFactory";
 
 	public MidiNoteDomain NoteDomain;
 
@@ -64,6 +65,12 @@ public class MidiFactory : MidiResponder {
 	// Use this for initialization
 	public override void Start () {
 
+		instances = new List<MidiNoteInstance>();
+
+		modifiers = GetComponents<MidiModifier>().ToList();
+
+		Debug.Log(Tag + " Start, got " + modifiers.Count + " modifiers");
+
 		// TODO : get all modifiers
 
 		noteOnDelegate = delegate(int channel, int pitch, int velocity) {
@@ -84,17 +91,19 @@ public class MidiFactory : MidiResponder {
 			GameObject instance = Instantiate(prefab);
 			instance.transform.parent = transform;
 
-			foreach(MidiNoteModifier modifier in modifiers) {
+			foreach(MidiModifier modifier in modifiers) {
 				modifier.NoteOn(instance, channel, pitch, velocity);
 			}
+
+			instances.Add(new MidiNoteInstance(instance, channel, pitch, velocity));
 
 		};
 
 		noteOffDelegate = delegate(int channel, int pitch, int velocity) {
 
 			MidiNoteInstance midiNoteInstance = GetInstance(channel, pitch);
-			if (midiNoteInstance) {
-				foreach(MidiNoteModifier modifier in modifiers) {
+			if (midiNoteInstance != null) {
+				foreach(MidiModifier modifier in modifiers) {
 					modifier.NoteOff(midiNoteInstance.Instance, channel, pitch, velocity);
 				}
 			}

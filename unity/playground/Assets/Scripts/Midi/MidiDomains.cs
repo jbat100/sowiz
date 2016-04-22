@@ -23,12 +23,19 @@ public class Midi7BitDomain : System.Object {
 	// https://unity3d.com/learn/tutorials/modules/beginner/tips/private-variables-in-the-inspector
 
 	[SerializeField]
+	private Boolean All = true;
+
+	[SerializeField]
 	private List<int> Values;
 
 	[SerializeField]
 	private List<Midi7BitRange> Ranges;
 
 	public Boolean Contains(int test) {
+
+		if (All) {
+			return true;
+		}
 
 		bool found = false;
 		foreach(int v in Values) {

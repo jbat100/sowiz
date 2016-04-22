@@ -98,6 +98,11 @@ public class FloatMapping : System.Object
 	public float Zero = 0f;
 	public float Unit = 1f;
 
+	public FloatMapping(float _zero, float _unit) {
+		Zero = _zero;
+		Unit = _unit;
+	}
+
 	public float Map(float val) {
 		return (val * (Unit - Zero)) + Zero;
 	}
@@ -108,6 +113,11 @@ public class Vector3Mapping : System.Object
 {
 	public Vector3 Zero = Vector3.zero;
 	public Vector3 Unit = Vector3.one;
+
+	public Vector3Mapping(Vector3 _zero, Vector3 _unit) {
+		Zero = _zero;
+		Unit = _unit;
+	}
 
 	public Vector3 Map(float val) {
 		return Vector3.Lerp(Zero, Unit, val);
@@ -134,17 +144,17 @@ public class TransformMapping : System.Object
 
 	public bool SlerpRotation = true; // slerp is slower but better
 
-	public Vector3 MapScale(Transform input, float val) {
+	public Vector3 MapScale(float val) {
 		return Vector3.Lerp(Zero.localScale, Unit.localScale, val);
 	}
 
-	public Vector3 MapPosition(Transform input, float val) {
+	public Vector3 MapPosition(float val) {
 		return Vector3.Lerp(Zero.localPosition, Unit.localPosition, val);
 	}
 
-	public Quaternion MapRotation(Transform input, float val) {
-		if (SlerpRotation) return input.localRotation = Quaternion.Slerp(Zero.localRotation, Unit.localRotation, val);
-		return input.localRotation = Quaternion.Lerp(Zero.localRotation, Unit.localRotation, val);
+	public Quaternion MapRotation(float val) {
+		if (SlerpRotation) return Quaternion.Slerp(Zero.localRotation, Unit.localRotation, val);
+		return Quaternion.Lerp(Zero.localRotation, Unit.localRotation, val);
 	}
 
 }
@@ -171,6 +181,11 @@ public class Rotator : System.Object
 	public Vector3 Axis = Vector3.forward;
 	public float Scale = 180f;
 
+	public Rotator(Vector3 _axis, float _scale) {
+		Axis = _axis;
+		Scale = _scale;
+	}
+
 	public Quaternion GetRotation(float val) {
 		return Quaternion.AngleAxis ( Scale * val, Axis );
 	}
@@ -182,6 +197,11 @@ public class Spinner : System.Object
 	public Vector3 Axis = Vector3.forward;
 	public float Scale = 180f;
 	public float Spin = 0f;
+
+	public Spinner(Vector3 _axis, float _scale) {
+		Axis = _axis;
+		Scale = _scale;
+	}
 
 	public Quaternion GetRotation() {
 		return Quaternion.AngleAxis ((float)(Scale * Spin * Time.deltaTime * 60f), Axis);

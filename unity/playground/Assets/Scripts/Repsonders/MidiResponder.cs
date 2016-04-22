@@ -3,18 +3,19 @@ using System.Collections;
 
 public class MidiResponder : SonosthesiaResponder {
 
+	// TODO: add responder delegates for pressure, aftertouch, control...
+
 	public delegate void MidiNoteOnDelegate(int channel, int pitch, int velocity);
 	public delegate void MidiNoteOffDelegate(int channel, int pitch, int velocity);
 
 	[HideInInspector]
-	public MidiNoteOnDelegate noteOnDelegate;
+	protected MidiNoteOnDelegate noteOnDelegate;
 
 	[HideInInspector]
-	public MidiNoteOffDelegate noteOffDelegate;
+	protected MidiNoteOffDelegate noteOffDelegate;
 
 	// Use this for initialization
 	public override void Start () {
-
 
 		controlDelegates["midi"] = delegate(ArrayList values) {
 

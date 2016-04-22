@@ -3,9 +3,9 @@ using System.Collections;
 
 public class TextureManipulator : SonosthesiaManipulator {
 
-	public SonosthesiaFloatMapping hueMapping = new SonosthesiaFloatMapping(0f, 1f);
-	public SonosthesiaFloatMapping saturationMapping = new SonosthesiaFloatMapping(0f, 1f);
-	public SonosthesiaFloatMapping brightnessMapping = new SonosthesiaFloatMapping(0f, 1f);
+	public FloatMapping hueMapping = new FloatMapping(0f, 1f);
+	public FloatMapping saturationMapping = new FloatMapping(0f, 1f);
+	public FloatMapping brightnessMapping = new FloatMapping(0f, 1f);
 
 	public override void Start() {
 

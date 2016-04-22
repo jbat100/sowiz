@@ -3,11 +3,11 @@ using System.Collections;
 
 public class ShurikenManipulator : SonosthesiaManipulator {
 
-	public SonosthesiaFloatMapping hueMapping = new SonosthesiaFloatMapping(0f, 1f);
-	public SonosthesiaFloatMapping saturationMapping = new SonosthesiaFloatMapping(0f, 1f);
-	public SonosthesiaFloatMapping brightnessMapping = new SonosthesiaFloatMapping(0f, 1f);
-	public SonosthesiaFloatMapping scaleMapping = new SonosthesiaFloatMapping(0.1f, 1.9f);
-	public SonosthesiaFloatMapping velocityMapping = new SonosthesiaFloatMapping(0.1f, 5.0f);
+	public FloatMapping hueMapping = new FloatMapping(0f, 1f);
+	public FloatMapping saturationMapping = new FloatMapping(0f, 1f);
+	public FloatMapping brightnessMapping = new FloatMapping(0f, 1f);
+	public FloatMapping scaleMapping = new FloatMapping(0.1f, 1.9f);
+	public FloatMapping velocityMapping = new FloatMapping(0.1f, 5.0f);
 
 	/*
 	 * 
