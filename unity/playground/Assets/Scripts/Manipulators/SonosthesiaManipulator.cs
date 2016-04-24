@@ -1,26 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System;
 
-public class SonosthesiaManipulator : SonosthesiaResponder {
 
-	public GameObject[] targets;
+public class SonosthesiaManipulator : MonoBehaviour {
 
-	protected delegate void TargetControlDelegate(GameObject target, ArrayList values);
+	static private string Tag = "SonosthesiaManipulator";
 
-	protected Dictionary<string, TargetControlDelegate> targetControlDelegates = new Dictionary<string, TargetControlDelegate>();
-
-	public override void ApplyMessage(SonosthesiaControlMessage message) {
-		TargetControlDelegate targetControlDelegate = null; 
-		if (targetControlDelegates.TryGetValue(message.descriptor, out targetControlDelegate))
-		{
-			// call the target delegate for each target 
-			foreach (GameObject target in targets) {
-				targetControlDelegate(target, message.values);
-			}
-		}
+	public Color GetTargetColor(GameObject target) {
+		return Color.white;
 	}
 		
+	public void SetTargetColor(GameObject target, Color color) {
+		Debug.Log(Tag + " unimplemented SetTargetColor");
+	}
+
 }
