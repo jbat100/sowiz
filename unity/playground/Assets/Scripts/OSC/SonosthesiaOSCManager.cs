@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Linq;
 using System;
 
 public class SonosthesiaControlMessage
@@ -19,8 +20,12 @@ public class SonosthesiaControlMessage
 
 	public override string ToString()
 	{
+		//string valuesString = string.Join(",", values.Select(x => x.ToString()).ToArray());
+		// string valuesString = String.Join(",", values.ToArray());
 		//Debug.Log("group is " + group);
-		return "SonosthesiaRoutingParameters (descriptor: " + descriptor + ", group: " + group + ")";
+		//string valuesString = String.Join(",", (string[]) values.ToArray());
+
+		return "SonosthesiaControlMessage with descriptor: " + descriptor + ", group: " + group;
 	}
 
 	public bool sameTarget(SonosthesiaControlMessage message) {
@@ -111,7 +116,7 @@ public class SonosthesiaControlMessageQueue {
 		lock(syncLock)
 		{
 			if (messages.Count > 0) {
-				Debug.Log("Enqueuing " + messages.Count + " control messages");
+				Debug.Log("Enqueuing " + messages.Count + " control message(s)");
 			}
 
 			foreach(SonosthesiaControlMessage message in messages)
@@ -256,7 +261,7 @@ public class SonosthesiaOSCManager : MonoBehaviour {
 	private SonosthesiaControlMessageBuffer messageBuffer;
 	private SonosthesiaControlMessageQueue messageQueue;
 
-	private SonosthesiaManipulator[] manipulators;
+	private SonosthesiaResponder[] responders;
 	private int updateCount = 0;
 
 
@@ -276,9 +281,9 @@ public class SonosthesiaOSCManager : MonoBehaviour {
 
 		// get all game objects with maniulator components
 
-		manipulators = FindObjectsOfType(typeof(SonosthesiaManipulator)) as SonosthesiaManipulator[];
+		responders = FindObjectsOfType(typeof(SonosthesiaResponder)) as SonosthesiaResponder[];
 
-		Debug.Log("Found " + manipulators.Length + " manipulators");
+		Debug.Log("SonosthesiaOSCManager found " + responders.Length + " responder(s)");
 
 		// not sure if InvokeRepeating does what we want, might need to create a new thread
 		// http://stackoverflow.com/questions/12997658/c-sharp-how-to-make-periodic-events-in-a-class
@@ -294,25 +299,22 @@ public class SonosthesiaOSCManager : MonoBehaviour {
 		List<SonosthesiaControlMessage> dequeued = messageQueue.DequeueAll();
 
 		foreach (SonosthesiaControlMessage message in dequeued) {
-			ApplyMessage(message);
+			Debug.Log("SonosthesiaOSCManager applying message : " + message.ToString());
+			foreach (SonosthesiaResponder responder in responders) {
+				responder.ProcessMessage(message);
+			}
 		}
 
 	}
 
 	void OnApplicationQuit() {
-		
+
+		// proactively close otherwise the thread goes on and needs to be hard killed 
+
 		UDPPacketIO udp = (UDPPacketIO)GetComponent("UDPPacketIO");
 		udp.Close ();
 
 		messageBuffer.Stop();
-
-	}
-
-	void ApplyMessage(SonosthesiaControlMessage message) {
-		
-		foreach (SonosthesiaManipulator manipulator in manipulators) {
-			manipulator.ApplyMessage(message);
-		}
 
 	}
 };

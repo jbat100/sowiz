@@ -10,13 +10,7 @@ public class SonosthesiaManipulator : SonosthesiaResponder {
 
 	protected delegate void TargetControlDelegate(GameObject target, ArrayList values);
 
-	protected Dictionary<string, TargetControlDelegate> targetControlDelegates;
-
-	// Use this for initialization
-	public override void Awake () {	
-		base.Awake();
-		targetControlDelegates = new Dictionary<string, TargetControlDelegate>();
-	}
+	protected Dictionary<string, TargetControlDelegate> targetControlDelegates = new Dictionary<string, TargetControlDelegate>();
 
 	public override void ApplyMessage(SonosthesiaControlMessage message) {
 		TargetControlDelegate targetControlDelegate = null; 

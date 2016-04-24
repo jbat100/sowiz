@@ -65,6 +65,10 @@ public class MidiFactory : MidiResponder {
 	// Use this for initialization
 	public override void Start () {
 
+		base.Start();
+
+		Debug.Log(Tag + " Start, setting midi on and off delegates");
+
 		instances = new List<MidiNoteInstance>();
 
 		modifiers = GetComponents<MidiModifier>().ToList();
@@ -75,7 +79,7 @@ public class MidiFactory : MidiResponder {
 
 		noteOnDelegate = delegate(int channel, int pitch, int velocity) {
 
-			Debug.Log(Tag + " note on : " + channel + " " + pitch + " " + velocity);
+			Debug.Log(Tag + " note_on : " + channel + " " + pitch + " " + velocity);
 
 			if (NoteDomain.ContainsNote(channel, pitch, velocity) == false) {
 				Debug.Log(Tag + " midi note is not in the relevant midi domain");
@@ -100,6 +104,8 @@ public class MidiFactory : MidiResponder {
 		};
 
 		noteOffDelegate = delegate(int channel, int pitch, int velocity) {
+
+			Debug.Log(Tag + " note_off : " + channel + " " + pitch + " " + velocity);
 
 			MidiNoteInstance midiNoteInstance = GetInstance(channel, pitch);
 			if (midiNoteInstance != null) {

@@ -3,6 +3,8 @@ using System.Collections;
 
 public class MidiResponder : SonosthesiaResponder {
 
+	static private string Tag = "MidiResponder";
+
 	// TODO: add responder delegates for pressure, aftertouch, control...
 
 	public delegate void MidiNoteOnDelegate(int channel, int pitch, int velocity);
@@ -16,6 +18,10 @@ public class MidiResponder : SonosthesiaResponder {
 
 	// Use this for initialization
 	public override void Start () {
+
+		base.Start();
+
+		Debug.Log(Tag + " Start, setting midi controlDelegate");
 
 		controlDelegates["midi"] = delegate(ArrayList values) {
 
