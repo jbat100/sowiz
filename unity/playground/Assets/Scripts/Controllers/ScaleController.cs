@@ -6,7 +6,9 @@ public class ScaleController : SonosthesiaController {
 	public Vector3Mapping scaleMapping = new Vector3Mapping(new Vector3(0.5f, 1f, 1f), new Vector3(5f, 1f, 1f));
 
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
+
+		base.Start();
 
 		targetControlDelegates["scale"] = delegate(GameObject target, ArrayList values) {
 			Vector3 newScale = scaleMapping.Map((float)(values[0]));

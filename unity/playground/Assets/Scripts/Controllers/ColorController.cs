@@ -8,7 +8,12 @@ public class ColorController : SonosthesiaController {
 	public FloatMapping brightnessMapping = new FloatMapping(0f, 1f);
 
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
+
+		base.Start();
+
+		// TODO use interfaces and move the manipulator to the subclasses for more fine grained selection
+		// using interfaces will definitely make things more flexible and extendible
 
 		targetControlDelegates["hue"] = delegate(GameObject target, ArrayList values) {
 			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetTargetColor(target));

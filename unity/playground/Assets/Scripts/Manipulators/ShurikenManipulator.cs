@@ -11,10 +11,6 @@ public class ShurikenManipulator : SonosthesiaManipulator {
 	 * The base manipulator is used to access non-module attributes of the particle system
 	 */
 
-	public override void Start() {
-			
-	}
-
 	public Color GetTargetColor(GameObject target) {
 		ParticleSystem particleSystem = GetTargetParticleSystem (target);
 		return particleSystem.startColor;

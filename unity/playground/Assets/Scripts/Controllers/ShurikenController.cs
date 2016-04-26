@@ -7,8 +7,8 @@ public class ShurikenController : SonosthesiaController {
 	public FloatMapping sizeMapping = new FloatMapping(0.1f, 1.9f);
 
 	// Use this for initialization
-	void Start () {
-	
+	public override void Start () {
+		base.Start();
 	}
 	
 	// Update is called once per frame
