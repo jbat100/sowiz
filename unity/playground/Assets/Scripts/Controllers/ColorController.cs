@@ -12,34 +12,27 @@ public class ColorController : SonosthesiaController {
 
 		base.Start();
 
-		// TODO use interfaces and move the manipulator to the subclasses for more fine grained selection
-		// using interfaces will definitely make things more flexible and extendible
-
-		targetControlDelegates["hue"] = delegate(GameObject target, ArrayList values) {
-			IColorManipulator manipulator = (IColorManipulator)GetManipulator(target, typeof(IColorManipulator));
+		controlDelegates["hue"] = delegate(ControlTarget target, ArrayList values) {
+			ColorManipulator manipulator = target.GetManipulator<ColorManipulator>();
 			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetColor(target));
 			hsbColor.h = hueMapping.Map((float)(values[0]));
-			manipulator.SetColor(target, hsbColor.ToColor ());
+			manipulator.SetColor(hsbColor.ToColor ());
 		};
 
-		targetControlDelegates["saturation"] = delegate(GameObject target, ArrayList values) {
-			IColorManipulator manipulator = (IColorManipulator)GetManipulator(target, typeof(IColorManipulator));
+		controlDelegates["saturation"] = delegate(ControlTarget target, ArrayList values) {
+			ColorManipulator manipulator = target.GetManipulator<ColorManipulator>();
 			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetColor(target));
 			hsbColor.s = saturationMapping.Map((float)(values[0]));
 			manipulator.SetColor(target, hsbColor.ToColor ());
 		};
 
-		targetControlDelegates["brightness"] = delegate(GameObject target, ArrayList values) {
-			IColorManipulator manipulator = (IColorManipulator)GetManipulator(target, typeof(IColorManipulator));
+		controlDelegates["brightness"] = delegate(ControlTarget target, ArrayList values) {
+			ColorManipulator manipulator = target.GetManipulator<ColorManipulator>();
 			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetColor(target));
 			hsbColor.b = brightnessMapping.Map((float)(values[0]));
 			manipulator.SetColor(target, hsbColor.ToColor ());
 		};
 	
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
 }

@@ -3,13 +3,7 @@ using System.Collections;
 
 public class ParticleManipulator : SonosthesiaManipulator {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+	public virtual void SetVelocity(float velocity) { }
+
+	public virtual void SetSize(float size) { }
 }

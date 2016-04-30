@@ -15,11 +15,11 @@ public class MaterialColorManipulator : ColorManipulator {
 		helper = new MaterialManipulatorHelper(target);
 	}
 
-	public Color GetColor () {
+	public override Color GetColor () {
 		return helper.GetMaterial(settings.materialIndex).GetColor(colorParameter); 
 	}
 
-	public void SetColor (Color color) {
+	public override void SetColor (Color color) {
 		helper.GetMaterial(settings.materialIndex).SetColor(colorParameter, color); 
 	}
 		

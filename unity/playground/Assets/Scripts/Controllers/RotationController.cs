@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RotationController : SonosthesiaController {
 
@@ -13,15 +14,15 @@ public class RotationController : SonosthesiaController {
 
 		base.Start();
 	
-		targetControlDelegates["rotation"] = delegate(GameObject target, ArrayList values) {
-			IRotationManipulator manipulator = (IRotationManipulator)GetManipulator(target, typeof(IRotationManipulator));
+		controlDelegates["rotation"] = delegate(ControlTarget target, ArrayList values) {
+			TransformManipulator manipulator = target.GetManipulator<TransformManipulator>();
 			Quaternion rotation = Rotator.GetRotation((float)(values[0]));
-			manipulator.SetRotation(target, rotation);
+			manipulator.SetRotation(rotation);
 		};
 
-		// spin does not apply to individual targets (hence controlDelegates and not targetControlDelegates)
+		// spin does not apply to individual targets (hence controlDelegates and not targetDelegate)
 		// the effect is applied to each target in the Update method
-		controlDelegates["spin"] = delegate(ArrayList values) {
+		responderDelegates["spin"] = delegate(ArrayList values) {
 			if ((float)(values[0]) > 1e-6) spun = true;
 			else spun = false;
 			Spinner.Spin = (float)(values[0]);
@@ -32,10 +33,12 @@ public class RotationController : SonosthesiaController {
 	// Update is called once per frame
 	void Update () {
 
+		List<ControlTarget> targets = TargetProvider.GetTargets();
+
 		// spin involves the rotation being updated every frame
 		if (spun) {
-			foreach (GameObject target in targets) {
-				IRotationManipulator manipulator = (IRotationManipulator)GetManipulator(target, typeof(IRotationManipulator));
+			foreach (ControlTarget target in targets) {
+				TransformManipulator manipulator = target.GetManipulator<TransformManipulator>();
 				Quaternion old = manipulator.GetRotation(target);
 				manipulator.SetRotation(target, old *= Spinner.GetRotation());
 			}	

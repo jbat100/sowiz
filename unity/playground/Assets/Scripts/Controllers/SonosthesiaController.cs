@@ -6,37 +6,34 @@ using System;
 
 public class SonosthesiaController : SonosthesiaResponder {
 
-	public List<GameObject> targets;
+	public delegate void ControlDelegate(ControlTarget target, ArrayList values);
 
-	public delegate List<GameObject> TargetProvider();
+	public ControlTargetProvider TargetProvider { get { return targetProvider;} }
 
-	public TargetProvider targetProvider;
+	protected Dictionary<string, ControlDelegate> controlDelegates = new Dictionary<string, ControlDelegate>();
 
-	protected delegate void TargetControlDelegate(GameObject target, ArrayList values);
+	private ControlTargetProvider targetProvider;
 
-	protected Dictionary<string, TargetControlDelegate> targetControlDelegates = new Dictionary<string, TargetControlDelegate>();
+	public override void Awake() {
 
-	// a repository of fetched manipulators as performance booster (to avoid repeated GetComponent calls)
-	private Dictionary<int, Dictionary<Type, Component>> manipulators = new Dictionary<int, Dictionary<Type, Component>>();
+		base.Awake();
 
-	public void AddTarget(GameObject target) {
-		if (!targets.Contains(target)) {
-			targets.Add(target);
-		}
-	}
+		targetProvider = GetComponent<ControlTargetProvider>();
 
-	public void RemoveTarget(GameObject target) {
-		if (targets.Contains(target)) {
-			targets.Remove(target);
-		}
 	}
 
 	public override void ApplyMessage(SonosthesiaControlMessage message) {
-		TargetControlDelegate targetControlDelegate = null; 
-		if (targetControlDelegates.TryGetValue(message.descriptor, out targetControlDelegate)) {
+
+		// apply normal responder delegate through base (target independant)
+		base.ApplyMessage(message);
+
+		// then call the controlDelegate for each target provided
+		List<ControlTarget> targets = targetProvider.GetTargets();
+		ControlDelegate controlDelegate = null; 
+		if (controlDelegates.TryGetValue(message.descriptor, out controlDelegate)) {
 			// call the target delegate for each target 
-			foreach (GameObject target in targets) {
-				targetControlDelegate(target, message.values);
+			foreach (ControlTarget target in targets) {
+				controlDelegate(target, message.values);
 			}
 		}
 	}

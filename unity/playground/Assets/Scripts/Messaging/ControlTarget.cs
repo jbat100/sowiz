@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+
 public class ControlTarget : MonoBehaviour {
 
 	Dictionary<Type, Component> manipulators;
@@ -26,4 +27,10 @@ public class ControlTarget : MonoBehaviour {
 		}
 		return (T)manipulators[typeof(T)];
 	}
+}
+
+public interface IControlTargetProvider {
+
+	List<ControlTarget> GetTargets();
+
 }

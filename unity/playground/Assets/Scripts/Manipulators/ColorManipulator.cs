@@ -5,6 +5,6 @@ public class ColorManipulator : SonosthesiaManipulator {
 
 	public virtual Color GetColor() { return Color.white; }
 
-	void SetColor(Color color) { }
+	public virtual void SetColor(Color color) { }
 
 }

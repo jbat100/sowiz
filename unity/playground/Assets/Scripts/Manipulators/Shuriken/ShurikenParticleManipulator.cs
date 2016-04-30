@@ -31,11 +31,11 @@ public class ShurikenParticleManipulator : ParticleManipulator {
 		helper = new ShurikenManipulatorHelper(Target);
 	}
 
-	public void SetVelocity(float velocity) {
+	public override void SetVelocity(float velocity) {
 		helper.ParticleSystem.startSpeed = velocity;
 	}
 
-	public void SetSize(float size) {
+	public override void SetSize(float size) {
 		helper.ParticleSystem.startSize = size;
 
 	}

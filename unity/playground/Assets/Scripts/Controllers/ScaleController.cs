@@ -10,17 +10,13 @@ public class ScaleController : SonosthesiaController {
 
 		base.Start();
 
-		targetControlDelegates["scale"] = delegate(GameObject target, ArrayList values) {
-			Vector3 newScale = scaleMapping.Map((float)(values[0]));
-			Debug.Log ("TransformManipulator setting scale " + newScale.ToString() );
-			IScaleManipulator manipulator = (IScaleManipulator)GetManipulator(target, typeof(IScaleManipulator));
-			manipulator.SetScale(target, newScale);
+		controlDelegates["scale"] = delegate(ControlTarget target, ArrayList values) {
+			Vector3 scale = scaleMapping.Map((float)(values[0]));
+			Debug.Log ("TransformManipulator setting scale " + scale.ToString() );
+			TransformManipulator manipulator = target.GetManipulator<TransformManipulator>();
+			manipulator.SetScale(scale);
 		};
 	
 	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+
 }
