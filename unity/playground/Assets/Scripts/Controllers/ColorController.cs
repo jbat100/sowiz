@@ -16,21 +16,24 @@ public class ColorController : SonosthesiaController {
 		// using interfaces will definitely make things more flexible and extendible
 
 		targetControlDelegates["hue"] = delegate(GameObject target, ArrayList values) {
-			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetTargetColor(target));
+			IColorManipulator manipulator = (IColorManipulator)GetManipulator(target, typeof(IColorManipulator));
+			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetColor(target));
 			hsbColor.h = hueMapping.Map((float)(values[0]));
-			manipulator.SetTargetColor(target, hsbColor.ToColor ());
+			manipulator.SetColor(target, hsbColor.ToColor ());
 		};
 
 		targetControlDelegates["saturation"] = delegate(GameObject target, ArrayList values) {
-			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetTargetColor(target));
+			IColorManipulator manipulator = (IColorManipulator)GetManipulator(target, typeof(IColorManipulator));
+			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetColor(target));
 			hsbColor.s = saturationMapping.Map((float)(values[0]));
-			manipulator.SetTargetColor(target, hsbColor.ToColor ());
+			manipulator.SetColor(target, hsbColor.ToColor ());
 		};
 
 		targetControlDelegates["brightness"] = delegate(GameObject target, ArrayList values) {
-			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetTargetColor(target));
+			IColorManipulator manipulator = (IColorManipulator)GetManipulator(target, typeof(IColorManipulator));
+			HSBColor hsbColor = HSBColor.FromColor(manipulator.GetColor(target));
 			hsbColor.b = brightnessMapping.Map((float)(values[0]));
-			manipulator.SetTargetColor(target, hsbColor.ToColor ());
+			manipulator.SetColor(target, hsbColor.ToColor ());
 		};
 	
 	}

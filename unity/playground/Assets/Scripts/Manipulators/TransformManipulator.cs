@@ -4,16 +4,28 @@ using System.Collections;
 
 public class TransformManipulator : SonosthesiaManipulator {
 
-	public void SetPosition(GameObject target, Vector3 position) {
-		target.transform.localPosition = position;
+	public Vector3 GetPosition() {
+		return Target.transform.localPosition;
 	}
 
-	public void SetRotation(GameObject target, Quaternion rotation) {
-		target.transform.localRotation = rotation;
+	public void SetPosition(Vector3 position) {
+		Target.transform.localPosition = position;
 	}
 
-	public void SetScale(GameObject target, Vector3 scale) {
-		target.transform.localScale = scale;
+	public Quaternion GetRotation() {
+		return Target.transform.localRotation;
+	}
+
+	public void SetRotation(Quaternion rotation) {
+		Target.transform.localRotation = rotation;
+	}
+
+	public Vector3 GetScale() {
+		return Target.transform.localScale;
+	}
+
+	public void SetScale(Vector3 scale) {
+		Target.transform.localScale = scale;
 	}
 
 }

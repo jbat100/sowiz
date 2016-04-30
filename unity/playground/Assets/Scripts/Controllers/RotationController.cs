@@ -14,9 +14,13 @@ public class RotationController : SonosthesiaController {
 		base.Start();
 	
 		targetControlDelegates["rotation"] = delegate(GameObject target, ArrayList values) {
-			target.transform.rotation = Rotator.GetRotation ((float)(values[0]));
+			IRotationManipulator manipulator = (IRotationManipulator)GetManipulator(target, typeof(IRotationManipulator));
+			Quaternion rotation = Rotator.GetRotation((float)(values[0]));
+			manipulator.SetRotation(target, rotation);
 		};
 
+		// spin does not apply to individual targets (hence controlDelegates and not targetControlDelegates)
+		// the effect is applied to each target in the Update method
 		controlDelegates["spin"] = delegate(ArrayList values) {
 			if ((float)(values[0]) > 1e-6) spun = true;
 			else spun = false;
@@ -27,10 +31,15 @@ public class RotationController : SonosthesiaController {
 	
 	// Update is called once per frame
 	void Update () {
+
+		// spin involves the rotation being updated every frame
 		if (spun) {
 			foreach (GameObject target in targets) {
-				target.transform.rotation *= Spinner.GetRotation();
+				IRotationManipulator manipulator = (IRotationManipulator)GetManipulator(target, typeof(IRotationManipulator));
+				Quaternion old = manipulator.GetRotation(target);
+				manipulator.SetRotation(target, old *= Spinner.GetRotation());
 			}	
 		}
+
 	}
 }

@@ -4,6 +4,12 @@ using System.Collections;
 
 public class SonosthesiaManipulator : MonoBehaviour {
 
-	static private string Tag = "SonosthesiaManipulator";
+	public GameObject Target { get { return target;} }
+
+	private GameObject target;
+
+	public virtual void Awake() {
+		target = gameObject;
+	}
 
 }

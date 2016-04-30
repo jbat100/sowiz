@@ -13,7 +13,8 @@ public class ScaleController : SonosthesiaController {
 		targetControlDelegates["scale"] = delegate(GameObject target, ArrayList values) {
 			Vector3 newScale = scaleMapping.Map((float)(values[0]));
 			Debug.Log ("TransformManipulator setting scale " + newScale.ToString() );
-			target.transform.localScale = newScale;
+			IScaleManipulator manipulator = (IScaleManipulator)GetManipulator(target, typeof(IScaleManipulator));
+			manipulator.SetScale(target, newScale);
 		};
 	
 	}
