@@ -12,10 +12,12 @@ public class SonosthesiaResponder : MonoBehaviour {
 
 	protected Dictionary<string, ResponderDelegate> responderDelegates = new Dictionary<string, ResponderDelegate>();
 
-	private static string Tag = "SonosthesiaResponder";
+	//protected string Tag = "";
 
 
 	public virtual void Awake() {
+
+		//Tag = this.GetType().Name;
 
 	}
 
@@ -27,13 +29,13 @@ public class SonosthesiaResponder : MonoBehaviour {
 	public virtual void ApplyMessage(SonosthesiaControlMessage message) {
 
 		ResponderDelegate responderDelegate = null;
-		Debug.Log (Tag + " control delegate keys: " + String.Join(", ", responderDelegates.Keys.ToArray()) );
+		//Debug.Log (this.GetType().Name + " responder delegate keys: " + String.Join(", ", responderDelegates.Keys.ToArray()) );
 		if (responderDelegates.TryGetValue(message.descriptor, out responderDelegate)) {
-			Debug.Log (Tag + " found delegate for descriptor " + message.descriptor );
+			//Debug.Log (this.GetType().Name + " found responder delegate for descriptor " + message.descriptor );
 			// call the main delegate once
 			responderDelegate(message.values);
 		} else {
-			Debug.Log (Tag + " no delegate for descriptor " + message.descriptor );
+			//Debug.Log (this.GetType().Name + " no responder delegate for descriptor " + message.descriptor );
 		}
 
 	}

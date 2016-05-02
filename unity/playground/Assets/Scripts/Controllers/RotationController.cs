@@ -39,8 +39,8 @@ public class RotationController : SonosthesiaController {
 		if (spun) {
 			foreach (ControlTarget target in targets) {
 				TransformManipulator manipulator = target.GetManipulator<TransformManipulator>();
-				Quaternion old = manipulator.GetRotation(target);
-				manipulator.SetRotation(target, old *= Spinner.GetRotation());
+				Quaternion old = manipulator.GetRotation();
+				manipulator.SetRotation(old *= Spinner.GetRotation());
 			}	
 		}
 

@@ -5,9 +5,8 @@ using System.Linq;
 
 public class SonosthesiaReceiver : MonoBehaviour {
 
-	static private string Tag = "SonosthesiaResponder";
 
-	public List<string> groups;
+	public List<string> groups = new  List<string> {"default"};
 
 	private List<SonosthesiaResponder> responders;
 
@@ -22,13 +21,13 @@ public class SonosthesiaReceiver : MonoBehaviour {
 		// should we apply messages for this group?
 		var result = string.Join(", ", message.values.ToArray().Select(o => o.ToString()).ToArray());
 		if (groups.Contains(message.group)) {
-			Debug.Log (Tag + " applying " + message.ToString() + " with values : " + result );
+			//Debug.Log (this.GetType().Name + " applying " + message.ToString() + " with values : " + result );
 			foreach(SonosthesiaResponder responder in responders) {
 				responder.ApplyMessage(message);
 			}
 			return;
 		} else {
-			Debug.Log (Tag + " not applying " + message.ToString() + " with values : " + result );
+			//Debug.Log (this.GetType().Name + " not applying " + message.ToString() + " with values : " + result );
 		}
 
 	}

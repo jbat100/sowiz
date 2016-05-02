@@ -6,7 +6,7 @@ using System;
 
 public class ControlTarget : MonoBehaviour {
 
-	Dictionary<Type, Component> manipulators;
+	Dictionary<Type, Component> manipulators = new Dictionary<Type, Component>();
 
 	// Use this for initialization
 	void Start () {

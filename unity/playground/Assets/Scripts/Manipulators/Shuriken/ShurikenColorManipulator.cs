@@ -16,7 +16,7 @@ public class ShurikenColorManipulator : ColorManipulator {
 		//return new Color ();
 	}
 
-	public override void SetColor(GameObject target, Color color) {
+	public override void SetColor(Color color) {
 		helper.ParticleSystem.startColor = color;
 	}
 }

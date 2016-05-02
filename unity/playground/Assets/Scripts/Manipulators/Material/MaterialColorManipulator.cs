@@ -12,7 +12,7 @@ public class MaterialColorManipulator : ColorManipulator {
 	public override void Awake ()
 	{
 		base.Awake ();
-		helper = new MaterialManipulatorHelper(target);
+		helper = new MaterialManipulatorHelper(Target);
 	}
 
 	public override Color GetColor () {

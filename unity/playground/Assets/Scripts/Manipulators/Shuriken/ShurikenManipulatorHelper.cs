@@ -14,10 +14,4 @@ public class ShurikenManipulatorHelper : ManipulatorHelper {
 		particleSystem = Target.GetComponent<ParticleSystem> ();
 	}
 
-	public Material GetMaterial(int materialIndex) {
-		if (renderer.materials.Length > materialIndex) {
-			return renderer.materials[materialIndex];
-		}
-		return renderer.material;
-	}
 }

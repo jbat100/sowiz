@@ -261,7 +261,7 @@ public class SonosthesiaOSCManager : MonoBehaviour {
 	private SonosthesiaControlMessageBuffer messageBuffer;
 	private SonosthesiaControlMessageQueue messageQueue;
 
-	private SonosthesiaResponder[] responders;
+	private List<SonosthesiaReceiver> receivers;
 	private int updateCount = 0;
 
 
@@ -281,9 +281,9 @@ public class SonosthesiaOSCManager : MonoBehaviour {
 
 		// get all game objects with maniulator components
 
-		responders = FindObjectsOfType(typeof(SonosthesiaResponder)) as SonosthesiaResponder[];
+		receivers = FindObjectsOfType<SonosthesiaReceiver>().ToList();
 
-		Debug.Log("SonosthesiaOSCManager found " + responders.Length + " responder(s)");
+		Debug.Log("SonosthesiaOSCManager found " + receivers.Count + " receivers(s)");
 
 		// not sure if InvokeRepeating does what we want, might need to create a new thread
 		// http://stackoverflow.com/questions/12997658/c-sharp-how-to-make-periodic-events-in-a-class
@@ -300,8 +300,8 @@ public class SonosthesiaOSCManager : MonoBehaviour {
 
 		foreach (SonosthesiaControlMessage message in dequeued) {
 			Debug.Log("SonosthesiaOSCManager applying message : " + message.ToString());
-			foreach (SonosthesiaResponder responder in responders) {
-				responder.ProcessMessage(message);
+			foreach (SonosthesiaReceiver receiver in receivers) {
+				receiver.ApplyMessage(message);
 			}
 		}
 

@@ -7,7 +7,7 @@ using UnityEditor;
 public class MappingEditor : Editor {
 
 	public override void OnInspectorGUI() {
-		SonosthesiaManipulator manipulator = (SonosthesiaManipulator)target;
+		//SonosthesiaManipulator manipulator = (SonosthesiaManipulator)target;
 	}
 
 }

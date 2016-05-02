@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ShurikenController : SonosthesiaController {
+public class ParticleController : SonosthesiaController {
 
 	public FloatMapping velocityMapping = new FloatMapping(0.1f, 5.0f);
 	public FloatMapping sizeMapping = new FloatMapping(0.1f, 1.9f);

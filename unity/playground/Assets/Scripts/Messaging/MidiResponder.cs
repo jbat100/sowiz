@@ -23,7 +23,7 @@ public class MidiResponder : SonosthesiaResponder {
 
 		Debug.Log(Tag + " Start, setting midi controlDelegate");
 
-		controlDelegates["midi"] = delegate(ArrayList values) {
+		responderDelegates["midi"] = delegate(ArrayList values) {
 
 			string midiMessageType = (string)values[0];
 

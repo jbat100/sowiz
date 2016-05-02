@@ -14,6 +14,7 @@ public class SonosthesiaController : SonosthesiaResponder {
 
 	private ControlTargetProvider targetProvider;
 
+
 	public override void Awake() {
 
 		base.Awake();
@@ -30,11 +31,15 @@ public class SonosthesiaController : SonosthesiaResponder {
 		// then call the controlDelegate for each target provided
 		List<ControlTarget> targets = targetProvider.GetTargets();
 		ControlDelegate controlDelegate = null; 
+		//Debug.Log (this.GetType().Name + " control delegate keys: " + String.Join(", ", controlDelegates.Keys.ToArray()) );
 		if (controlDelegates.TryGetValue(message.descriptor, out controlDelegate)) {
+			//Debug.Log (this.GetType().Name + " found control delegate for descriptor " + message.descriptor );
 			// call the target delegate for each target 
 			foreach (ControlTarget target in targets) {
 				controlDelegate(target, message.values);
 			}
+		} else {
+			//Debug.Log (this.GetType().Name + " no responder delegate for descriptor " + message.descriptor );
 		}
 	}
 
