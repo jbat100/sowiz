@@ -12,22 +12,25 @@ public class MidiRotationModifier : MidiModifier {
 	public MeshMapping meshMapping;
 	// public SplineMapping splineMapping;
 
-	public override void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
+	public override void NoteOn(ControlTarget target, int channel, int pitch, int velocity) {
 
 		float val = valueGenerator.GenerateNoteValue(channel, pitch, velocity);
 
+		TransformManipulator manipulator = target.GetManipulator<TransformManipulator>();
+		if (manipulator == null) return;
+
 		switch(foundation) {
 		case Foundation.Identity:
-			instance.transform.localRotation = Quaternion.identity;
+			manipulator.SetRotation(Quaternion.identity);
 			break;
 		case Foundation.Quaternion:
-			instance.transform.localRotation = quaternionMapping.Map(val);
+			manipulator.SetRotation(quaternionMapping.Map(val));
 			break;
 		case Foundation.Transform:
-			instance.transform.localRotation = transformMapping.MapRotation(val);
+			manipulator.SetRotation(transformMapping.MapRotation(val));
 			break;
 		case Foundation.Mesh:
-			instance.transform.localRotation = meshMapping.MapRotation(val);
+			manipulator.SetRotation(meshMapping.MapRotation(val));
 			break;
 		case Foundation.Spline:
 			break;

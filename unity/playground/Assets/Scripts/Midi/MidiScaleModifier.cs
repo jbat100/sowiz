@@ -10,19 +10,22 @@ public class MidiScaleModifier : MidiModifier {
 	public Vector3Mapping vectorMapping;
 	public TransformMapping transformMapping;
 
-	public override void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
+	public override void NoteOn(ControlTarget target, int channel, int pitch, int velocity) {
 
 		float val = valueGenerator.GenerateNoteValue(channel, pitch, velocity);
 
+		TransformManipulator manipulator = target.GetManipulator<TransformManipulator>();
+		if (manipulator == null) return;
+
 		switch(foundation) {
 		case Foundation.Identity:
-			instance.transform.localScale = Vector3.one;
+			manipulator.SetScale(Vector3.one);
 			break;
 		case Foundation.Vector:
-			instance.transform.localScale = vectorMapping.Map(val);
+			manipulator.SetScale(vectorMapping.Map(val));
 			break;
 		case Foundation.Transform:
-			instance.transform.localScale = transformMapping.MapScale(val);
+			manipulator.SetScale(transformMapping.MapScale(val));
 			break;
 		}
 

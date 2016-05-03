@@ -13,22 +13,25 @@ public class MidiPositionModifier : MidiModifier {
 	// public SplineMapping splineMapping;
 
 
-	public override void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
+	public override void NoteOn(ControlTarget target, int channel, int pitch, int velocity) {
 
 		float val = valueGenerator.GenerateNoteValue(channel, pitch, velocity);
 
+		TransformManipulator manipulator = target.GetManipulator<TransformManipulator>();
+		if (manipulator == null) return;
+
 		switch(foundation) {
 		case Foundation.Identity:
-			instance.transform.localPosition = Vector3.zero;
+			manipulator.SetPosition(Vector3.zero);
 			break;
 		case Foundation.Vector:
-			instance.transform.localPosition = vectorMapping.Map(val);
+			manipulator.SetPosition(vectorMapping.Map(val));
 			break;
 		case Foundation.Transform:
-			instance.transform.localPosition = transformMapping.MapPosition(val);
+			manipulator.SetPosition(transformMapping.MapPosition(val));
 			break;
 		case Foundation.Mesh:
-			instance.transform.localPosition = meshMapping.MapPosition(val);
+			manipulator.SetPosition(meshMapping.MapPosition(val));
 			break;
 		case Foundation.Spline:
 			break;

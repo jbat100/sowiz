@@ -19,11 +19,11 @@ public class MidiModifier : MonoBehaviour {
 	
 	}
 
-	public virtual void NoteOn(GameObject instance, int channel, int pitch, int velocity) {
+	public virtual void NoteOn(ControlTarget target, int channel, int pitch, int velocity) {
 		
 	}
 
-	public virtual void NoteOff(GameObject instance, int channel, int pitch, int velocity) {
+	public virtual void NoteOff(ControlTarget target, int channel, int pitch, int velocity) {
 		
 	}
 
